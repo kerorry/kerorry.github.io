@@ -108,7 +108,6 @@
 
 .back-article {
   display: inline-block;
-  margin-bottom: 10px;
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-subtle);
   padding: 6px 12px;
