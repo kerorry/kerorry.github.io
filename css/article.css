@@ -1,0 +1,124 @@
+/* article.css */
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-medium);
+}
+
+.search-input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.tags-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tag-filter-item {
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+  user-select: none;
+}
+
+.tag-filter-item:hover {
+  background: var(--color-bg-hover-strong);
+}
+
+.tag-filter-item.active {
+  background: var(--color-bg-active);
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 2px var(--color-border-light);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding-top: 0;
+  flex-wrap: wrap;
+  user-select: none;
+}
+
+.pagination-btn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 500;
+  background: var(--color-bg-light-gray);
+}
+
+.pagination-btn:hover {
+  border-color: var(--color-border-strong);
+}
+
+.pagination-btn.active {
+  background: var(--color-bg-active);
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 2px var(--color-border-light);
+  font-weight: 600;
+}
+
+.pagination-pages{
+  display: flex;
+  background: var(--color-bg-light-gray);
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle);
+  gap: 10px;
+}
+
+.pagination-ellipsis {
+  color: var(--color-text-placeholder);
+  padding: 0 4px;
+}
+
+.back-article {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  padding: 6px 12px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.back-article:hover {
+  background: var(--color-bg-hover-strong);
+}

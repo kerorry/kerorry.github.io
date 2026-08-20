@@ -1,0 +1,94 @@
+/* 使用博客的 CSS 变量，保持玻璃态风格 */
+#sunlight-widget {
+    margin: 20px 0;                        /* 与博客段落间距一致 */
+    padding: 0;                            /* 由内部卡片控制 */
+}
+
+/* 整个卡片容器，复用博客 .glass-ground 样式 */
+#sunlight-widget .sw-card {
+    background: var(--color-bg-white);
+    border-radius: 3px;                    /* 与 .glass-ground 一致 */
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: 0 2px 12px var(--color-shadow-light), 0 1px 3px rgba(0,0,0,0.02);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    padding: 20px 25px;                   /* 与 .blog-post 内边距接近 */
+}
+
+#sunlight-widget .sw-card:hover {
+    box-shadow: 0 6px 24px var(--color-shadow-medium), 0 1px 4px rgba(0,0,0,0.04);
+    transform: translateY(-1px);
+}
+
+#sunlight-widget .sw-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+#sunlight-widget .sw-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-shadow: 0 1px 4px var(--color-text-shadow);
+}
+
+#sunlight-widget .sw-info {
+    display: flex;
+    gap: 16px;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+#sunlight-widget .sw-info span {
+    background: var(--color-bg-hover);
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--color-border-subtle);
+}
+
+#sunlight-widget #sw-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 1;
+    background: #0d0d0d;                  /* 深色底图，让阳光更明显 */
+    border-radius: 3px;
+    border: 1px solid var(--color-border-subtle);
+}
+
+#sunlight-widget .sw-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+#sunlight-widget .sw-gradient {
+    width: 140px;
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #0a0a2e, #4a90d9, #ffd700);
+}
+
+/* 移动端适配 */
+@media (max-width: 570px) {
+    #sunlight-widget .sw-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    #sunlight-widget .sw-info {
+        font-size: 0.75rem;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    #sunlight-widget .sw-gradient {
+        width: 100px;
+    }
+}

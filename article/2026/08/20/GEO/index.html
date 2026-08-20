@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <script src="/js/load-css.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>geometry 合并工具</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+  <!-- 个人信息 -->
+  <div id="top-container"></div>
+
+  <main class="container">
+    <div id="sidebar-container"></div>
+    <div class="main-content">
+      <article class="blog-post glass-ground">
+          <h1 class="tool-title">皮肤包合并</h1>
+          <div class="tool-subtitle">
+            <a id="back-article-link" class="back-article">← 返回文章列表</a>
+          </div>
+
+          <!-- 文件选择 -->
+          <div class="file-drop-zone">
+              <!-- 文件 1 -->
+              <div class="file-card" id="fileCard1">
+                  <div class="file-card-label">
+                      <span>基础包</span>
+                      <span class="badge">优先</span>
+                  </div>
+                  <input type="file" class="file-card-input" id="fileInput1" accept=".zip" />
+                  <div class="file-card-info" id="fileInfo1">
+                      <span style="color:var(--color-text-placeholder);">点击选择或拖拽 .zip</span>
+                  </div>
+                  <div class="parse-info-grid" id="parseInfo1" style="display:none; margin-top:10px;">
+                      <div class="info-box">
+                          <div class="info-box-title">Geometry 字段</div>
+                          <div class="info-box-content" id="geoInfo1">—</div>
+                      </div>
+                      <div class="info-box">
+                          <div class="info-box-title">皮肤列表</div>
+                          <div class="info-box-content" id="skinInfo1">—</div>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- 文件 2 -->
+              <div class="file-card" id="fileCard2">
+                  <div class="file-card-label">
+                      <span>附加包</span>
+                      <span class="badge">次选</span>
+                  </div>
+                  <input type="file" class="file-card-input" id="fileInput2" accept=".zip" />
+                  <div class="file-card-info" id="fileInfo2">
+                      <span style="color:var(--color-text-placeholder);">点击选择或拖拽 .zip</span>
+                  </div>
+                  <div class="parse-info-grid" id="parseInfo2" style="display:none; margin-top:10px;">
+                      <div class="info-box">
+                          <div class="info-box-title">Geometry 字段</div>
+                          <div class="info-box-content" id="geoInfo2">—</div>
+                      </div>
+                      <div class="info-box">
+                          <div class="info-box-title">皮肤列表</div>
+                          <div class="info-box-content" id="skinInfo2">—</div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- 合并模式 -->
+          <div class="mode-section">
+              <span class="mode-label">冲突处理模式</span>
+              <div class="mode-options">
+                  <label class="mode-option">
+                      <input type="radio" name="mergeMode" value="overwrite" checked />
+                      覆盖
+                      <span class="mode-desc">冲突时保留第一个，丢弃第二个</span>
+                  </label>
+                  <label class="mode-option">
+                      <input type="radio" name="mergeMode" value="coexist" />
+                      共存
+                      <span class="mode-desc">冲突时重命名（几何键 / 皮肤 / 图片）并更新引用</span>
+                  </label>
+              </div>
+          </div>
+
+          <!-- 操作栏 -->
+          <div class="action-bar">
+              <button class="pixel-btn secondary" id="parseBtn1">解析包1</button>
+              <button class="pixel-btn secondary" id="parseBtn2">解析包2</button>
+              <button class="pixel-btn" id="mergeBtn" style="background:var(--mc-green);">开始合并</button>
+              <button class="pixel-btn secondary" id="clearLogBtn">清空日志</button>
+          </div>
+
+          <!-- 日志 -->
+          <div class="log-area">
+              <div class="log-header">
+                  <span>处理日志</span>
+                  <span style="font-size:12px; color:var(--color-text-placeholder);" id="logCount">0 条</span>
+              </div>
+              <div class="log-box" id="logBox">就绪，请选择两个皮肤包 ZIP 文件。</div>
+          </div>
+
+      </article>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "全球阳光图",
+    "date": "2026-08-01",
+    "author": "Kerorry",
+    "summary": "实时显示全球日照情况的可视化项目。",
+    "file": "article/2026/08/01/GSM/",
+    "tags": ["项目", "可视化", "数据分析"]
+  },
+  {
+    "id": 2,
+    "title": "Geometry 合并工具",
+    "date": "2026-08-02",
+    "author": "Kerorry",
+    "summary": "用于合并 Geometry 的工具。",
+    "file": "article/2026/08/20/GEO/",
+    "tags": ["项目", "合并", "zip"]
+  }
+]

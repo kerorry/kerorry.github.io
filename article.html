@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <script src="/js/load-css.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerorry的个人博客</title>
+    <link rel="icon" href="favicon.ico">
+</head>
+<body>
+  <!-- 顶部栏 -->
+  <div id="top-container"></div>
+
+  <main class="container">
+    <!-- 侧边栏 -->
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+      <!-- 文章栏 -->
+      <div id="article-list-container">
+
+        <!-- 搜索 -->
+      <div class="search-section glass-ground" style="padding: 16px 20px;">
+        <input type="text" id="search-input" class="search-input" placeholder="搜索文章标题、摘要、作者..." />
+        <div class="tags-filter" id="tags-filter"></div>
+      </div>
+
+        <div class="line"></div>
+
+        <!-- 文章列表 -->
+        <div id="list-section" class="list-section"></div>
+
+        <div class="line" id="pagination-line"></div>
+
+        <!-- 分页 -->
+        <div class="pagination" id="pagination-container">
+          <button class="pagination-btn prev" id="prev-page" data-page="prev">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div class="pagination-pages" id="pagination-pages"></div>
+          <button class="pagination-btn next" id="next-page" data-page="next">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+  <div id="footer-container"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+</body>
+</html>
