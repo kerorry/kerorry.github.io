@@ -1,0 +1,129 @@
+/* top.css */
+.top-div {
+  width: 100%;
+  padding: 20px;
+}
+
+.top {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: auto 0;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.top-text {
+  display: block;
+}
+
+.top-div h2 {
+  text-align: center;
+  font-size: 20px;
+  color: var(--color-text-primary);
+  text-shadow: 0 1px 4px var(--color-text-shadow);
+}
+
+/* ========== 汉堡按钮样式 ========== */
+.hamburger-btn {
+  display: none; /* 桌面端隐藏 */
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.hamburger-btn:hover {
+  background: var(--color-bg-hover-strong);
+}
+
+/* 使 top-div 变为相对定位，用于放置绝对定位的按钮 */
+.top-div {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 在桌面端保持原样 */
+.sidebar {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 移动设备上，侧边栏改为固定定位，从左侧滑出 */
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: block; /* 手机显示汉堡按钮 */
+  }
+
+  .sidebar {
+    position: fixed;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    width: 80%; /* 侧边栏宽度 */
+    max-width: 280px;
+    height: 90vh;
+    top: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 垂直居中 */
+    padding: 20px;
+    margin: 5vh 0;
+    background: var(--color-bg-primary);
+    box-shadow: 2px 0 12px var(--color-shadow-medium);
+    z-index: 1000;
+    transform: translateX(-100%); /* 默认隐藏 */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--color-border-subtle);
+  }
+
+  .sidebar.open {
+    transform: translateX(0); /* 滑入 */
+  }
+
+  /* 遮罩层 */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+  }
+
+  /* 侧边栏内部样式适配 */
+  .sidebar .info-profile img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+}
+
+/* 极小屏宽度调整 */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 85%;
+    max-width: 260px;
+  }
+}

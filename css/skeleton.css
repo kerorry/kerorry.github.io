@@ -1,0 +1,88 @@
+/* skeleton.css */
+.skeleton {
+  background: var(--color-bg-skeleton);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-skeleton-shimmer), transparent);
+  animation: shimmer 1.8s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 70%;
+  margin-bottom: 12px;
+}
+
+.skeleton-meta {
+  height: 14px;
+  width: 40%;
+  margin-bottom: 20px;
+}
+
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-button {
+  height: 40px;
+  width: 120px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.skeleton-paragraph {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skeleton-paragraph .skeleton-line:last-child {
+  width: 75%;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s forwards;
+}
+.fade-in {
+  animation: fadeIn 0.3s forwards;
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
