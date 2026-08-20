@@ -453,9 +453,55 @@ const PageManager = {
             const randomIndex = Math.floor(Math.random() * wallpapers.length);
             const wallpaper = wallpapers[randomIndex];
             const imgUrl = ROOT_PATH + wallpaper.file;
-            document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.09)), url(${imgUrl})`;
+
+            // 设置 body 背景为图片
+            document.body.style.backgroundImage = `url(${imgUrl})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+            // 背景色作为后备
+            document.body.style.backgroundColor = '#f0f2f5';
+
+            // 创建伪元素渐变覆盖层
+            const styleId = 'bg-overlay-style';
+            let styleEl = document.getElementById(styleId);
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = styleId;
+                document.head.appendChild(styleEl);
+            }
+            const gradient = 'linear-gradient(135deg, #e0e5ec, #f5f7fa)';
+            styleEl.textContent = `
+                body::before {
+                    content: '';
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: ${gradient};
+                    transition: opacity 0.8s ease;
+                    opacity: 1;
+                    pointer-events: none;
+                    z-index: 0;
+                }
+            `;
+
+            // 预加载图片，加载完成后淡出覆盖层
+            const img = new Image();
+            img.onload = () => {
+                // 渐变层渐出，露出背景图片
+                styleEl.textContent = styleEl.textContent.replace('opacity: 1;', 'opacity: 0;');
+            };
+            img.onerror = () => {
+                // 加载失败同样淡出，保留纯色背景
+                styleEl.textContent = styleEl.textContent.replace('opacity: 1;', 'opacity: 0;');
+            };
+            img.src = imgUrl;
         } catch (error) {
-            console.warn('壁纸加载失败，使用默认背景', error);
+            console.warn('壁纸加载失败，使用默认渐变', error);
+            document.body.style.backgroundImage = 'linear-gradient(135deg, #e0e5ec, #f5f7fa)';
+            document.body.style.backgroundColor = '';
         }
     },
 
@@ -549,7 +595,6 @@ const PageManager = {
             sidebar.classList.toggle('open');
             overlay.classList.toggle('active');
             document.body.classList.toggle('no-scroll');
-            // 可选：切换图标（汉堡 ↔ 叉）
             const icon = hamburger.querySelector('i');
             if (icon) {
             icon.className = sidebar.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
