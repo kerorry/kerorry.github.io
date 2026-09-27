@@ -1,59 +1,96 @@
-(function() {
-  // 固定根路径为网站根目录
-  var rootPath = '/';
+(function () {
+  'use strict';
 
-  var styles = [
-    rootPath + 'css/style.css',
-    rootPath + 'css/skeleton.css',
-    rootPath + 'css/loading.css',
-    rootPath + 'css/article.css',
-    rootPath + 'css/info.css',
-    rootPath + 'css/top.css',
-    rootPath + 'css/sidebar.css'
+  // 获取当前脚本
+  const script = document.currentScript || (() => {
+    const scripts = document.getElementsByTagName('script');
+    return scripts[scripts.length - 1];
+  })();
+
+  // 计算根路径
+  const src = script.src;
+  const rootPath = src.substring(0, src.lastIndexOf('/js/') + 1);
+
+  // 需要加载的 CSS
+  const CSS_FILES = [
+    'css/style.css',
+    'css/skeleton.css',
+    'css/loading.css',
+    'css/article.css',
+    'css/info.css',
+    'css/top.css',
+    'css/sidebar.css'
   ];
 
-  styles.forEach(function(href) {
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    document.head.appendChild(link);
-  });
-
   // Font Awesome
-  var faLink = document.createElement('link');
-  faLink.rel = 'stylesheet';
-  faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
-  document.head.appendChild(faLink);
+  const FONT_AWESOME_URL =
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
 
-  // 加载动画
-  document.write(`
+  // loading HTML
+  const LOADING_HTML = `
     <div class="loading-wrapper show" id="loadingWrapper">
       <div class="loading">
         <div></div><div></div><div></div><div></div><div></div>
       </div>
     </div>
-  `);
+  `;
 
-  // 加载主脚本
-  function loadScript(src) {
-    return new Promise(function(resolve, reject) {
-      var script = document.createElement('script');
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
+  // 插入 link 标签
+  function appendLink(href) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
+  }
+
+  // 加载所有样式
+  function loadStyles() {
+    CSS_FILES.forEach((file) => {
+      appendLink(rootPath + file);
+    });
+
+    appendLink(FONT_AWESOME_URL);
+  }
+
+  // 插入 loading 动画
+  function insertLoading() {
+    if (document.getElementById('loadingWrapper')) return;
+
+    const insert = () => {
+      document.body.insertAdjacentHTML('beforeend', LOADING_HTML);
+    };
+
+    if (document.body) {
+      insert();
+    } else {
+      document.addEventListener('DOMContentLoaded', insert);
+    }
+  }
+
+  // 动态加载脚本
+  function loadScript(url) {
+    return new Promise((resolve, reject) => {
+      const scriptEl = document.createElement('script');
+      scriptEl.src = url;
+      scriptEl.onload = resolve;
+      scriptEl.onerror = reject;
+      document.head.appendChild(scriptEl);
     });
   }
 
+  // 初始化
   function init() {
     loadScript(rootPath + 'js/script.js')
-      .then(function() {
+      .then(() => {
         console.log('script.js loaded');
       })
-      .catch(function(err) {
+      .catch((err) => {
         console.error('script.js load failed:', err);
       });
   }
+
+  loadStyles();
+  insertLoading();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
