@@ -31,36 +31,270 @@ console.log('网站根路径:', ROOT_PATH);
   }
 })();
 
-window.loading = {
-  loadingAnimation: document.querySelector('.loading-wrapper'),
+/* ---------------- SPA 路由 ---------------- */
+const SPA = {
+  navigating: false,
 
-  in(target) {
-    const isLocal =
-      location.hostname === 'localhost' ||
-      location.hostname === '127.0.0.1' ||
-      location.protocol === 'file:';
+  ANIM_OUT: 250,
+  ANIM_IN: 300,
+  SLIDE_PX: 40,
 
-    let finalTarget = target;
-    if (
-      isLocal &&
-      target &&
-      !target.endsWith('.html') &&
-      !target.endsWith('/')
-    ) {
-      finalTarget = target + '.html';
+  pageStyles: [],
+  pageScripts: [],
+
+  baseStyles: [
+    'css/style.css',
+    'css/skeleton.css',
+    'css/article.css',
+    'css/info.css',
+    'css/top.css',
+    'css/sidebar.css',
+    'font-awesome',
+  ],
+
+  isExternal(url) {
+    try {
+      return (
+        new URL(url, window.location.href).origin !== window.location.origin
+      );
+    } catch {
+      return true;
     }
+  },
 
-    console.log('跳转到:', finalTarget);
+  isSamePage(url) {
+    try {
+      const a = new URL(url, window.location.href);
+      const b = new URL(window.location.href);
+      return a.pathname === b.pathname && a.search === b.search;
+    } catch {
+      return false;
+    }
+  },
 
-    const wrapper = this.loadingAnimation;
-    if (wrapper) wrapper.classList.add('show');
+  isBaseStyle(href) {
+    return this.baseStyles.some((k) => href.includes(k));
+  },
 
-    setTimeout(() => {
-      window.location.href = finalTarget;
-    }, 400);
+  clearPageAssets() {
+    this.pageStyles.forEach((el) => el.remove());
+    this.pageScripts.forEach((el) => el.remove());
+    this.pageStyles = [];
+    this.pageScripts = [];
+  },
+
+  injectStyles(doc, baseUrl) {
+    const links = doc.querySelectorAll('link[rel="stylesheet"]');
+    links.forEach((link) => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+      if (this.isBaseStyle(href)) return;
+
+      const resolved = new URL(href, baseUrl).href;
+      if (document.querySelector(`link[href="${resolved}"]`)) return;
+
+      const newLink = document.createElement('link');
+      newLink.rel = 'stylesheet';
+      newLink.href = resolved;
+      document.head.appendChild(newLink);
+      this.pageStyles.push(newLink);
+    });
+  },
+
+  executeExternalScripts(doc, baseUrl) {
+    const scripts = doc.querySelectorAll('script[src]');
+    scripts.forEach((old) => {
+      const src = old.getAttribute('src');
+      if (!src) return;
+
+      if (/\/js\/load-css\.js(\?|$)/.test(src)) return;
+      if (old.closest('.main-content')) return;
+
+      const resolved = new URL(src, baseUrl).href;
+
+      const s = document.createElement('script');
+      s.src = resolved;
+      if (old.type) s.type = old.type;
+      s.async = false;
+      document.head.appendChild(s);
+      this.pageScripts.push(s);
+    });
+  },
+
+  executeInlineScripts(container, baseUrl) {
+    const scripts = container.querySelectorAll('script');
+    scripts.forEach((old) => {
+      const s = document.createElement('script');
+      for (const attr of old.attributes) {
+        s.setAttribute(attr.name, attr.value);
+      }
+      s.textContent = old.textContent;
+      s.async = false;
+
+      if (old.getAttribute('src')) {
+        s.src = new URL(old.getAttribute('src'), baseUrl).href;
+        document.head.appendChild(s);
+        this.pageScripts.push(s);
+      } else {
+        old.parentNode.replaceChild(s, old);
+      }
+    });
+  },
+
+  animateOut(el) {
+    const px = this.SLIDE_PX;
+    const anim = el.animate(
+      [
+        { opacity: 1, transform: 'translateX(0)' },
+        { opacity: 0, transform: `translateX(${px}px)` },
+      ],
+      {
+        duration: this.ANIM_OUT,
+        easing: 'cubic-bezier(0.4, 0, 1, 1)',
+        fill: 'forwards',
+      }
+    );
+    return anim.finished.catch(() => {});
+  },
+
+  animateIn(el) {
+    const px = this.SLIDE_PX;
+    const anim = el.animate(
+      [
+        { opacity: 0, transform: `translateX(${px}px)` },
+        { opacity: 1, transform: 'translateX(0)' },
+      ],
+      {
+        duration: this.ANIM_IN,
+        easing: 'cubic-bezier(0, 0, 0.2, 1)',
+        fill: 'forwards',
+      }
+    );
+    return anim.finished.catch(() => {});
+  },
+
+  cancelAnimations(el) {
+    if (typeof el.getAnimations === 'function') {
+      el.getAnimations().forEach((a) => {
+        try {
+          a.cancel();
+        } catch (_) {}
+      });
+    }
+  },
+
+  async navigate(url, push = true) {
+    if (this.navigating) return;
+    this.navigating = true;
+
+    try {
+      const targetUrl = new URL(url, window.location.href);
+
+      if (targetUrl.origin !== window.location.origin) {
+        window.location.href = targetUrl.href;
+        return;
+      }
+
+      if (this.isSamePage(targetUrl.href)) return;
+
+      const res = await fetch(targetUrl.href);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const html = await res.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+
+      const newMain = doc.querySelector('.main-content');
+      const currentMain = document.querySelector('.main-content');
+
+      if (!newMain || !currentMain) {
+        window.location.href = targetUrl.href;
+        return;
+      }
+
+      document.dispatchEvent(new CustomEvent('spa:before-navigate'));
+
+      this.cancelAnimations(currentMain);
+
+      // 1. 旧内容右滑淡出
+      await this.animateOut(currentMain);
+
+      // 2. 清理旧资源 + 注入新样式
+      this.clearPageAssets();
+      this.injectStyles(doc, targetUrl.href);
+
+      // 3. 换掉主内容
+      currentMain.innerHTML = newMain.innerHTML;
+
+      // 4. 同步 body class / title / 地址栏
+      document.body.className = doc.body.className;
+      if (doc.title) document.title = doc.title;
+
+      if (push) {
+        history.pushState(
+          { spa: true },
+          '',
+          targetUrl.pathname + targetUrl.search + targetUrl.hash
+        );
+      }
+
+      // 5. ★ 关键：让 PageManager 同步插入骨架屏（在滑入之前！）
+      if (window.PageManager && PageManager.prepareContent) {
+        PageManager.prepareContent();
+      }
+
+      // 6. 新内容（带骨架屏）右滑淡入
+      await this.animateIn(currentMain);
+      this.cancelAnimations(currentMain);
+
+      // 7. 注入并执行脚本
+      this.executeExternalScripts(doc, targetUrl.href);
+      this.executeInlineScripts(currentMain, targetUrl.href);
+
+      // 8. 加载数据
+      if (window.PageManager && PageManager.initContent) {
+        await PageManager.initContent();
+      }
+
+      document.dispatchEvent(
+        new CustomEvent('spa:content-loaded', {
+          detail: { url: targetUrl.href },
+        })
+      );
+
+      window.scrollTo({ top: 0 });
+    } catch (e) {
+      console.error('[SPA] 导航失败，回退整页跳转', e);
+      window.location.href = url;
+    } finally {
+      this.navigating = false;
+    }
   },
 };
 
+/* 导航辅助函数 */
+async function navigateTo(target) {
+  const isLocal =
+    location.hostname === 'localhost' ||
+    location.hostname === '127.0.0.1' ||
+    location.protocol === 'file:';
+
+  let finalTarget = target;
+  if (
+    isLocal &&
+    target &&
+    !target.endsWith('.html') &&
+    !target.endsWith('/')
+  ) {
+    finalTarget = target + '.html';
+  }
+
+  console.log('跳转到:', finalTarget);
+  await SPA.navigate(finalTarget);
+}
+
+window.navigateTo = navigateTo;
+
+/* ---------------- PageManager ---------------- */
 const PageManager = {
   allArticles: [],
   searchText: '',
@@ -71,33 +305,100 @@ const PageManager = {
   totalPages: 0,
   filteredArticles: [],
 
+  // ★ 新增：localStorage 缓存键
+  TAGS_CACHE_KEY: 'all_tags',
+
   async init() {
-    this.showLoading();
     await this.loadWallpaper();
 
     await Promise.all([
       this.loadTop(),
       this.loadSidebar(),
       this.loadFooter(),
-      this.bindBackButton(),
     ]);
 
     await this.loadArticleCount();
-    this.hideLoadingIfNeeded();
     this.bindHamburger();
+    this.bindPopState();
 
-    // 解决浏览器后退时动画残留
-    window.addEventListener('pageshow', (e) => {
-      if (e.persisted) {
-        this.hideLoadingIfNeeded();
+    await this.initContent();
+  },
+
+  /* ★ 新增：同步准备内容（重置状态 + 插入骨架屏 + 同步渲染缓存标签） */
+  prepareContent() {
+    // 重置与主内容相关的状态
+    this.allArticles = [];
+    this.searchText = '';
+    this.activeTags = [];
+    this.listContainer = null;
+    this.currentPage = 1;
+    this.totalPages = 0;
+    this.filteredArticles = [];
+
+    this.bindBackButton();
+
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    const baseName = path.replace(/\.html$/, '');
+
+    // 文章列表页：同步插入骨架屏，让它跟着主内容一起滑入
+    if (baseName === 'article') {
+      const listSection = document.querySelector('#list-section');
+      // 幂等：已经有骨架屏就不再插
+      if (listSection && !listSection.querySelector('.skeleton')) {
+        listSection.innerHTML = `
+          <div class="article-list">
+            ${[1, 2, 3]
+              .map(
+                () => `
+              <article class="post glass-ground blog-post">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-meta"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line short"></div>
+                <div class="skeleton skeleton-button"></div>
+              </article>
+            `
+              )
+              .join('')}
+          </div>
+        `;
       }
-    });
+
+      // ★ 新增：同步渲染缓存标签，避免搜索卡片高度跳动
+      const tagsFilter = document.querySelector('#tags-filter');
+      if (tagsFilter && !tagsFilter.children.length) {
+        try {
+          const cached = localStorage.getItem(this.TAGS_CACHE_KEY);
+          const tags = cached ? JSON.parse(cached) : null;
+          if (Array.isArray(tags) && tags.length) {
+            tagsFilter.innerHTML = tags
+              .map(
+                (tag) =>
+                  `<span class="tag-filter-item" data-tag="${tag}">${tag}</span>`
+              )
+              .join('');
+          }
+        } catch (_) {}
+      }
+    }
+  },
+
+  /* 异步加载数据（骨架屏已在 prepareContent 里插好） */
+  async initContent() {
+    // 首次加载时 prepareContent 还没跑过，这里兜底一次（幂等）
+    this.prepareContent();
 
     const path = window.location.pathname.split('/').pop() || 'index.html';
     const baseName = path.replace(/\.html$/, '');
     if (baseName === 'article') {
       await this.loadArticleList();
     }
+  },
+
+  bindPopState() {
+    window.addEventListener('popstate', () => {
+      SPA.navigate(window.location.href, false);
+    });
   },
 
   async loadTop() {
@@ -108,10 +409,10 @@ const PageManager = {
       const res = await fetch(ROOT_PATH + 'top.html');
       if (!res.ok) throw new Error('Top 加载失败');
       const html = await res.text();
-      document.getElementById('top-container').innerHTML = html;
+      container.innerHTML = html;
     } catch (error) {
       console.error('加载 top 出错:', error);
-      document.getElementById('top-container').innerHTML =
+      container.innerHTML =
         '<div class="top glass-ground">顶部加载失败</div>';
     }
   },
@@ -124,12 +425,12 @@ const PageManager = {
       const res = await fetch(ROOT_PATH + 'sidebar.html');
       if (!res.ok) throw new Error('Sidebar 加载失败');
       const html = await res.text();
-      document.getElementById('sidebar-container').innerHTML = html;
+      container.innerHTML = html;
       await this.initGitHubData();
       this.bindEvents();
     } catch (error) {
       console.error('加载 sidebar 出错:', error);
-      document.getElementById('sidebar-container').innerHTML =
+      container.innerHTML =
         '<aside class="sidebar glass-ground">侧边栏加载失败</aside>';
     }
   },
@@ -139,9 +440,8 @@ const PageManager = {
       const res = await fetch(ROOT_PATH + 'articles.json');
       if (!res.ok) throw new Error('加载文章列表失败');
       const articles = await res.json();
-      const count = articles.length;
       const el = document.getElementById('stat-articles');
-      if (el) el.textContent = count;
+      if (el) el.textContent = articles.length;
     } catch (error) {
       console.error('获取文章数量失败:', error);
     }
@@ -155,10 +455,10 @@ const PageManager = {
       const res = await fetch(ROOT_PATH + 'footer.html');
       if (!res.ok) throw new Error('Footer 加载失败');
       const html = await res.text();
-      document.getElementById('footer-container').innerHTML = html;
+      container.innerHTML = html;
     } catch (error) {
       console.error('加载 footer 出错:', error);
-      document.getElementById('footer-container').innerHTML =
+      container.innerHTML =
         '<footer class="glass-ground"><p>页脚加载失败</p></footer>';
     }
   },
@@ -244,12 +544,6 @@ const PageManager = {
     }
   },
 
-  showLoading() {
-    const wrapper = document.querySelector('.loading-wrapper');
-    if (wrapper) wrapper.classList.add('show');
-    document.body.classList.add('no-scroll');
-  },
-
   async loadArticleList() {
     const container = document.querySelector('#article-list-container');
     if (!container) return;
@@ -261,40 +555,29 @@ const PageManager = {
 
     this.listContainer = listSection;
 
-    container.addEventListener('click', (e) => {
-      const link = e.target.closest('a.read-more');
-      if (link && link.href) {
-        e.preventDefault();
-        window.loading.in(link.href);
-        return;
-      }
+    // 事件只绑定一次（SPA 每次替换 DOM，容器是新元素，dataset 会重置）
+    if (container.dataset.bound !== '1') {
+      container.dataset.bound = '1';
 
-      const btn = e.target.closest('.pagination-btn');
-      if (btn && btn.dataset.page) {
-        e.preventDefault();
-        this.handlePaginationClick(btn.dataset.page);
-      }
-    });
+      container.addEventListener('click', (e) => {
+        const link = e.target.closest('a.read-more');
+        if (link && link.href) {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+          window.navigateTo(link.href);
+          return;
+        }
 
-    listSection.innerHTML = `
-      <div class="article-list">
-        ${[1, 2, 3]
-          .map(
-            () => `
-          <article class="post glass-ground blog-post">
-            <div class="skeleton skeleton-title"></div>
-            <div class="skeleton skeleton-meta"></div>
-            <div class="skeleton skeleton-line"></div>
-            <div class="skeleton skeleton-line short"></div>
-            <div class="skeleton skeleton-button"></div>
-          </article>
-        `
-          )
-          .join('')}
-      </div>
-    `;
+        const btn = e.target.closest('.pagination-btn');
+        if (btn && btn.dataset.page) {
+          e.preventDefault();
+          this.handlePaginationClick(btn.dataset.page);
+        }
+      });
+    }
 
-    container.classList.remove('fade-out', 'fade-in');
+    // ★ 不再插骨架屏 —— 骨架屏已经在 prepareContent 里跟着 SPA 滑入
+    // ★ 标签也已经由 prepareContent 同步渲染（若有缓存）
 
     try {
       const res = await fetch(ROOT_PATH + 'articles.json');
@@ -310,6 +593,11 @@ const PageManager = {
       });
       const allTags = Array.from(tagSet);
 
+      // ★ 新增：把标签写入 localStorage，供下次 SPA 切页同步渲染
+      try {
+        localStorage.setItem(this.TAGS_CACHE_KEY, JSON.stringify(allTags));
+      } catch (_) {}
+
       if (tagsFilter) {
         tagsFilter.innerHTML = allTags
           .map(
@@ -318,42 +606,51 @@ const PageManager = {
           )
           .join('');
 
-        tagsFilter.addEventListener('click', (e) => {
-          const target = e.target.closest('.tag-filter-item');
-          if (!target) return;
-          const tag = target.dataset.tag;
-          if (!tag) return;
+        if (tagsFilter.dataset.bound !== '1') {
+          tagsFilter.dataset.bound = '1';
+          tagsFilter.addEventListener('click', (e) => {
+            const target = e.target.closest('.tag-filter-item');
+            if (!target) return;
+            const tag = target.dataset.tag;
+            if (!tag) return;
 
-          target.classList.toggle('active');
-          this.activeTags = Array.from(
-            tagsFilter.querySelectorAll('.tag-filter-item.active')
-          ).map((el) => el.dataset.tag);
+            target.classList.toggle('active');
+            this.activeTags = Array.from(
+              tagsFilter.querySelectorAll('.tag-filter-item.active')
+            ).map((el) => el.dataset.tag);
 
-          this.filterAndRender(true);
-        });
+            this.filterAndRender(true);
+          });
+        }
       }
 
       if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-          this.searchText = e.target.value.trim();
-          this.filterAndRender(true);
-        });
+        if (searchInput.dataset.bound !== '1') {
+          searchInput.dataset.bound = '1';
+          searchInput.addEventListener('input', (e) => {
+            this.searchText = e.target.value.trim();
+            this.filterAndRender(true);
+          });
+        }
       }
 
-      container.classList.add('fade-out');
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      // ★ 直接渲染，不再做 fade-out / 等 300ms / fade-in 那一套
       this.filterAndRender(true);
-      container.classList.remove('fade-out');
-      container.classList.add('fade-in');
 
+      // 给刚渲染出来的真内容一个轻微的淡入，让替换不那么突兀
+      this.listContainer.classList.remove('fade-in');
+      // 强制重排，确保 fade-in 动画会重新触发
+      void this.listContainer.offsetWidth;
+      this.listContainer.classList.add('fade-in');
       setTimeout(() => {
-        container.classList.remove('fade-in');
-      }, 300);
+        if (this.listContainer) {
+          this.listContainer.classList.remove('fade-in');
+        }
+      }, 250);
     } catch (error) {
       console.error('加载文章列表失败:', error);
       listSection.innerHTML =
         '<p style="color:white; padding:20px;">加载失败，请稍后重试。</p>';
-      container.classList.remove('fade-out', 'fade-in');
     }
   },
 
@@ -556,8 +853,8 @@ const PageManager = {
 
     pages.push(1);
 
-    let start = Math.max(2, current - 1);
-    let end = Math.min(total - 1, current + 1);
+    const start = Math.max(2, current - 1);
+    const end = Math.min(total - 1, current + 1);
 
     if (start > 2) pages.push('...');
     for (let i = start; i <= end; i++) pages.push(i);
@@ -602,8 +899,16 @@ const PageManager = {
       const target = li.dataset.target;
       if (!target) return;
 
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.button !== 0
+      )
+        return;
+
       event.preventDefault();
-      window.loading.in(ROOT_PATH + target);
+      window.navigateTo(ROOT_PATH + target);
     });
   },
 
@@ -614,16 +919,14 @@ const PageManager = {
     const target = ROOT_PATH + 'article.html';
     backLink.href = target;
 
-    backLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.loading.in(target);
-    });
-  },
+    if (backLink.dataset.bound === '1') return;
+    backLink.dataset.bound = '1';
 
-  hideLoadingIfNeeded() {
-    const wrapper = document.querySelector('.loading-wrapper');
-    if (wrapper) wrapper.classList.remove('show');
-    document.body.classList.remove('no-scroll');
+    backLink.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      window.navigateTo(target);
+    });
   },
 
   bindHamburger() {
@@ -676,3 +979,4 @@ if (document.readyState === 'loading') {
 }
 
 window.PageManager = PageManager;
+window.SPA = SPA;
