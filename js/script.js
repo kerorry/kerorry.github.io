@@ -3,17 +3,13 @@ console.log('[加载] script.js 已加载');
 function getRootPath() {
   const scripts = document.getElementsByTagName('script');
   for (let i = 0; i < scripts.length; i++) {
-    const src = scripts[i].src;
-    if (src && src.indexOf('script.js') !== -1) {
-      const match = src.match(/^(.*\/)js\/script\.js/);
-      if (match) return match[1];
-    }
+    const match = scripts[i].src && scripts[i].src.match(/^(.*\/)js\/script\.js(\?|$)/);
+    if (match) return match[1];
   }
   const path = window.location.pathname;
   const dirPath = path.substring(0, path.lastIndexOf('/') + 1);
   const parts = dirPath.split('/').filter((p) => p && p.length > 0);
-  const depth = parts.length;
-  return depth === 0 ? './' : '../'.repeat(depth);
+  return parts.length === 0 ? './' : '../'.repeat(parts.length);
 }
 
 const ROOT_PATH = getRootPath();
@@ -107,7 +103,7 @@ const SPA = {
       const src = old.getAttribute('src');
       if (!src) return;
 
-      if (/\/js\/load-css\.js(\?|$)/.test(src)) return;
+      if (/\/js\/(load-css|script)\.js(\?|$)/.test(src)) return;
       if (old.closest('.main-content')) return;
 
       const resolved = new URL(src, baseUrl).href;
@@ -217,6 +213,16 @@ const SPA = {
 
       // 旧内容右滑淡出
       await this.animateOut(currentMain);
+
+      // 清理上一页注册的卸载钩子
+      if (typeof window.__pageCleanup === 'function') {
+        try {
+          window.__pageCleanup();
+        } catch (e) {
+          console.error('[SPA] pageCleanup 执行出错', e);
+        }
+        window.__pageCleanup = null;
+      }
 
       // 清理旧资源 + 注入新样式
       this.clearPageAssets();

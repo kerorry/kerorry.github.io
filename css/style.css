@@ -81,7 +81,7 @@ body::before {
   opacity: 1;
   transition: opacity 0.6s ease;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 body.wallpaper-loaded::before {
