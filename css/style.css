@@ -28,6 +28,10 @@
   --color-shadow-medium: rgba(0, 0, 0, 0.08);
   --color-shadow-glow: rgba(0, 0, 0, 0.04);
 
+  /* 壁纸 */
+  --color-bg-gradient-start: #e0e5ec;
+  --color-bg-gradient-end: #f5f7fa;
+
   /* 其他 */
   --color-loading-dot: #b0b0c0;
   --color-skeleton-shimmer: rgba(0, 0, 0, 0.05);
@@ -56,9 +60,32 @@ body {
   padding: 20px;
   line-height: 1.6;
   background-color: var(--color-bg-primary);
+  background-image: var(
+    --wallpaper-url,
+    linear-gradient(135deg, var(--color-bg-gradient-start), var(--color-bg-gradient-end))
+  );
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gradient-start),
+    var(--color-bg-gradient-end)
+  );
+  opacity: 1;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.wallpaper-loaded::before {
+  opacity: 0;
 }
 
 .no-scroll {

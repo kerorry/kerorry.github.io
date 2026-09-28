@@ -57,10 +57,10 @@
   function init() {
     loadScript(rootPath + 'js/script.js')
       .then(() => {
-        console.log('script.js loaded');
+        console.log('[加载] load-css.js 已加载');
       })
       .catch((err) => {
-        console.error('script.js load failed:', err);
+        console.error('[加载] load-css.js load failed:', err);
       });
   }
 
