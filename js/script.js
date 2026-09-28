@@ -1,4 +1,4 @@
-console.log('script.js 已加载');
+console.log('[加载] script.js 已加载');
 
 function getRootPath() {
   const scripts = document.getElementsByTagName('script');
@@ -17,7 +17,7 @@ function getRootPath() {
 }
 
 const ROOT_PATH = getRootPath();
-console.log('网站根路径:', ROOT_PATH);
+console.log('[信息] 网站根路径:', ROOT_PATH);
 
 (function setFavicon() {
   const link = document.querySelector('link[rel="icon"]');
@@ -215,18 +215,24 @@ const SPA = {
 
       this.cancelAnimations(currentMain);
 
-      // 1. 旧内容右滑淡出
+      // 旧内容右滑淡出
       await this.animateOut(currentMain);
 
-      // 2. 清理旧资源 + 注入新样式
+      // 清理旧资源 + 注入新样式
       this.clearPageAssets();
       this.injectStyles(doc, targetUrl.href);
 
-      // 3. 换掉主内容
+      // 换掉主内容
       currentMain.innerHTML = newMain.innerHTML;
 
-      // 4. 同步 body class / title / 地址栏
+      // 同步类名，但保留壁纸加载状态
+      const keepWallpaperLoaded =
+        document.body.classList.contains('wallpaper-loaded');
       document.body.className = doc.body.className;
+      if (keepWallpaperLoaded) {
+        document.body.classList.add('wallpaper-loaded');
+      }
+
       if (doc.title) document.title = doc.title;
 
       if (push) {
@@ -237,20 +243,20 @@ const SPA = {
         );
       }
 
-      // 5. ★ 关键：让 PageManager 同步插入骨架屏（在滑入之前！）
+      // 让 PageManager 同步插入骨架屏
       if (window.PageManager && PageManager.prepareContent) {
         PageManager.prepareContent();
       }
 
-      // 6. 新内容（带骨架屏）右滑淡入
+      // 新内容（带骨架屏）右滑淡入
       await this.animateIn(currentMain);
       this.cancelAnimations(currentMain);
 
-      // 7. 注入并执行脚本
+      // 注入并执行脚本
       this.executeExternalScripts(doc, targetUrl.href);
       this.executeInlineScripts(currentMain, targetUrl.href);
 
-      // 8. 加载数据
+      // 加载数据
       if (window.PageManager && PageManager.initContent) {
         await PageManager.initContent();
       }
@@ -305,7 +311,7 @@ const PageManager = {
   totalPages: 0,
   filteredArticles: [],
 
-  // ★ 新增：localStorage 缓存键
+  // localStorage 缓存键
   TAGS_CACHE_KEY: 'all_tags',
 
   async init() {
@@ -324,7 +330,7 @@ const PageManager = {
     await this.initContent();
   },
 
-  /* ★ 新增：同步准备内容（重置状态 + 插入骨架屏 + 同步渲染缓存标签） */
+  /* 同步准备内容 */
   prepareContent() {
     // 重置与主内容相关的状态
     this.allArticles = [];
@@ -364,7 +370,7 @@ const PageManager = {
         `;
       }
 
-      // ★ 新增：同步渲染缓存标签，避免搜索卡片高度跳动
+      // 同步渲染缓存标签，避免搜索卡片高度跳动
       const tagsFilter = document.querySelector('#tags-filter');
       if (tagsFilter && !tagsFilter.children.length) {
         try {
@@ -383,7 +389,7 @@ const PageManager = {
     }
   },
 
-  /* 异步加载数据（骨架屏已在 prepareContent 里插好） */
+  /* 异步加载数据 */
   async initContent() {
     // 首次加载时 prepareContent 还没跑过，这里兜底一次（幂等）
     this.prepareContent();
@@ -476,7 +482,7 @@ const PageManager = {
       ]);
 
       if (!userRes.ok || !reposRes.ok) {
-        throw new Error('GitHub API 请求失败');
+        throw new Error('[GitHub] API 请求失败');
       }
 
       const userData = await userRes.json();
@@ -503,7 +509,7 @@ const PageManager = {
         stats.followersCount
       );
     } catch (error) {
-      console.error('GitHub 数据获取失败', error);
+      console.error('[GitHub] 数据获取失败', error);
     }
   },
 
@@ -523,7 +529,7 @@ const PageManager = {
           );
         }
         if (Date.now() - timestamp < CACHE_EXPIRE) {
-          console.log('GitHub 数据来自缓存');
+          console.log('[GitHub] 数据来自缓存');
           return;
         }
       } catch (_) {}
@@ -576,12 +582,12 @@ const PageManager = {
       });
     }
 
-    // ★ 不再插骨架屏 —— 骨架屏已经在 prepareContent 里跟着 SPA 滑入
-    // ★ 标签也已经由 prepareContent 同步渲染（若有缓存）
+    // 骨架屏已经在 prepareContent 里跟着 SPA 滑入
+    // 标签也已经由 prepareContent 同步渲染（若有缓存）
 
     try {
       const res = await fetch(ROOT_PATH + 'articles.json');
-      if (!res.ok) throw new Error('加载文章列表失败');
+      if (!res.ok) throw new Error('[文章] 加载文章列表失败');
       const articles = await res.json();
       this.allArticles = articles;
 
@@ -593,7 +599,7 @@ const PageManager = {
       });
       const allTags = Array.from(tagSet);
 
-      // ★ 新增：把标签写入 localStorage，供下次 SPA 切页同步渲染
+      // 把标签写入 localStorage，供下次 SPA 切页同步渲染
       try {
         localStorage.setItem(this.TAGS_CACHE_KEY, JSON.stringify(allTags));
       } catch (_) {}
@@ -634,7 +640,7 @@ const PageManager = {
         }
       }
 
-      // ★ 直接渲染，不再做 fade-out / 等 300ms / fade-in 那一套
+      // 直接渲染，不再做 fade-out / 等 300ms / fade-in 那一套
       this.filterAndRender(true);
 
       // 给刚渲染出来的真内容一个轻微的淡入，让替换不那么突兀
@@ -648,7 +654,7 @@ const PageManager = {
         }
       }, 250);
     } catch (error) {
-      console.error('加载文章列表失败:', error);
+      console.error('[文章] 加载文章列表失败:', error);
       listSection.innerHTML =
         '<p style="color:white; padding:20px;">加载失败，请稍后重试。</p>';
     }
@@ -781,64 +787,33 @@ const PageManager = {
   async loadWallpaper() {
     try {
       const res = await fetch(ROOT_PATH + 'wallpaper.json');
-      if (!res.ok) throw new Error('加载壁纸列表失败');
+      if (!res.ok) throw new Error('[壁纸] 加载壁纸列表失败');
+
       const wallpapers = await res.json();
       if (wallpapers.length === 0) return;
 
-      const randomIndex = Math.floor(Math.random() * wallpapers.length);
-      const wallpaper = wallpapers[randomIndex];
-      const imgUrl = ROOT_PATH + wallpaper.file;
+      const pick = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+      const imgUrl = ROOT_PATH + pick.file;
 
-      document.body.style.backgroundImage = `url(${imgUrl})`;
-      document.body.style.backgroundSize = 'cover';
-      document.body.style.backgroundPosition = 'center';
-      document.body.style.backgroundAttachment = 'fixed';
-      document.body.style.backgroundColor = '#f0f2f5';
-
-      const styleId = 'bg-overlay-style';
-      let styleEl = document.getElementById(styleId);
-      if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = styleId;
-        document.head.appendChild(styleEl);
-      }
-
-      const gradient = 'linear-gradient(135deg, #e0e5ec, #f5f7fa)';
-      styleEl.textContent = `
-        body::before {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: ${gradient};
-          transition: opacity 0.8s ease;
-          opacity: 1;
-          pointer-events: none;
-          z-index: 0;
-        }
-      `;
+      console.log('[壁纸] 加载：' + imgUrl);
 
       const img = new Image();
+
       img.onload = () => {
-        styleEl.textContent = styleEl.textContent.replace(
-          'opacity: 1;',
-          'opacity: 0;'
-        );
+        document.body.style.setProperty('--wallpaper-url', `url("${imgUrl}")`);
+        document.body.classList.add('wallpaper-loaded');
+        console.log('[壁纸] 已显示（' + performance.now().toFixed(0) + 'ms）');
       };
+
       img.onerror = () => {
-        styleEl.textContent = styleEl.textContent.replace(
-          'opacity: 1;',
-          'opacity: 0;'
-        );
+        console.warn('[壁纸] 加载失败：' + imgUrl);
+        document.body.classList.add('wallpaper-loaded');
       };
+
       img.src = imgUrl;
     } catch (error) {
-      console.warn('壁纸加载失败，使用默认渐变', error);
-      document.body.style.backgroundImage =
-        'linear-gradient(135deg, #e0e5ec, #f5f7fa)';
-      document.body.style.backgroundColor = '';
+      console.warn('[壁纸] 加载失败，使用默认渐变', error);
+      document.body.classList.add('wallpaper-loaded');
     }
   },
 
@@ -935,7 +910,7 @@ const PageManager = {
     const overlay = document.getElementById('sidebarOverlay');
 
     if (!hamburger || !sidebar || !overlay) {
-      console.warn('汉堡菜单元素未找到，可能不在移动端');
+      console.warn('[导航] 汉堡菜单元素未找到，可能不在移动端');
       return;
     }
 
@@ -970,11 +945,11 @@ const PageManager = {
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM 已加载，初始化...');
+    console.log('[DOM] 已加载，初始化...');
     PageManager.init();
   });
 } else {
-  console.log('DOM 已就绪，初始化...');
+  console.log('[DOM] 已就绪，初始化...');
   PageManager.init();
 }
 
