@@ -43,11 +43,22 @@
   --mc-stone: #bdbdbd;
 }
 
+@font-face {
+  font-family: "MiSans VF";
+  src:
+    url("../fonts/MiSansVF.woff2") format("truetype-variations"),
+    url("../fonts/MiSansVF.woff2") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "MiSans VF", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
 }
 
 html {
@@ -141,6 +152,7 @@ body.wallpaper-loaded::before {
 .post-title {
   margin-bottom: 10px;
   font-size: 28px;
+  font-weight: 600;
   color: var(--color-text-primary);
   text-shadow: 0 1px 4px var(--color-text-shadow);
 }

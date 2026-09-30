@@ -87,7 +87,7 @@
 }
 
 .pagination-btn.active {
-  font-weight: 600;
+  font-weight: 700;
   background: var(--color-bg-active);
   border-color: var(--color-border-strong);
   box-shadow: 0 0 0 2px var(--color-border-light);
@@ -110,7 +110,7 @@
   display: inline-block;
   padding: 6px 12px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-text-primary);
   text-decoration: none;
   border: 1px solid var(--color-border-subtle);
