@@ -32,6 +32,10 @@
   --color-bg-gradient-start: #e0e5ec;
   --color-bg-gradient-end: #f5f7fa;
 
+  /* 页脚链接 */
+  --footer-color-link: #007bff;
+  --footer-color-link-hover: #0056b3;
+
   /* 其他 */
   --color-loading-dot: #b0b0c0;
   --color-skeleton-shimmer: rgba(0, 0, 0, 0.05);

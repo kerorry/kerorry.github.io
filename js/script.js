@@ -45,6 +45,7 @@ const SPA = {
     'css/info.css',
     'css/top.css',
     'css/sidebar.css',
+    'css/footer.css',
     'font-awesome',
   ],
 
