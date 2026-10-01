@@ -1,0 +1,145 @@
+/* entrance.css */
+
+:root {
+  /* 曲线：起步果断，末段强力收敛 */
+  --enter-ease: cubic-bezier(0.25, 0.9, 0.3, 1);
+  --enter-dur: 520ms;      /* 标准节拍 */
+  --enter-dur-slow: 640ms; /* 大块结构（侧栏）稍慢一档 */
+}
+
+/* 自下而上 —— 内容块、卡片、列表 */
+@keyframes enter-up {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  68% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 自上而下压入 —— 顶栏、页头 */
+@keyframes enter-down {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0);
+  }
+  68% {
+    opacity: 1;
+    transform: translate3d(0, 2px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 自左向右推入 —— 侧栏 */
+@keyframes enter-right {
+  0% {
+    opacity: 0;
+    transform: translate3d(-28px, 0, 0);
+  }
+  68% {
+    opacity: 1;
+    transform: translate3d(2px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 纯淡入 —— 用于不宜位移的元素 */
+@keyframes enter-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 侧边栏 */
+@media (min-width: 769px) {
+  .sidebar {
+    animation-name: enter-right;
+    animation-duration: var(--enter-dur-slow);
+    animation-timing-function: var(--enter-ease);
+    animation-fill-mode: backwards;
+    animation-iteration-count: 1;
+  }
+}
+
+/* 侧栏内部各区块：跟着侧栏一起走，同时再各自错开一小步 */
+.sidebar > * {
+  animation-name: enter-up;
+  animation-duration: var(--enter-dur);
+  animation-timing-function: var(--enter-ease);
+  animation-fill-mode: backwards;
+  animation-iteration-count: 1;
+}
+
+/* :where() 保持低优先级，方便个别元素在后面单独覆盖 */
+.sidebar > :where(:nth-child(1)) { animation-delay: 60ms; }
+.sidebar > :where(:nth-child(2)) { animation-delay: 110ms; }
+.sidebar > :where(:nth-child(3)) { animation-delay: 160ms; }
+.sidebar > :where(:nth-child(4)) { animation-delay: 210ms; }
+.sidebar > :where(:nth-child(n + 5)) { animation-delay: 250ms; }
+
+/* 主内容区 */
+
+.main-content > * {
+  animation-name: enter-up;
+  animation-duration: var(--enter-dur);
+  animation-timing-function: var(--enter-ease);
+  animation-fill-mode: backwards;
+  animation-iteration-count: 1;
+}
+
+.main-content > :where(:nth-child(1)) { animation-delay: 140ms; }
+.main-content > :where(:nth-child(2)) { animation-delay: 190ms; }
+.main-content > :where(:nth-child(3)) { animation-delay: 240ms; }
+.main-content > :where(:nth-child(4)) { animation-delay: 290ms; }
+.main-content > :where(:nth-child(5)) { animation-delay: 340ms; }
+.main-content > :where(:nth-child(n + 6)) { animation-delay: 380ms; }
+
+/* 个别元素的独立节拍 */
+
+/* 顶栏：从上方落下，比正文早一点到位 */
+.top-div {
+  animation-name: enter-down;
+  animation-duration: var(--enter-dur);
+  animation-timing-function: var(--enter-ease);
+  animation-fill-mode: backwards;
+  animation-iteration-count: 1;
+  animation-delay: 80ms;
+}
+
+/* 页脚：最后落位 */
+footer {
+  animation-name: enter-up;
+  animation-duration: var(--enter-dur);
+  animation-timing-function: var(--enter-ease);
+  animation-fill-mode: backwards;
+  animation-iteration-count: 1;
+  animation-delay: 420ms;
+}
+
+/* 无障碍 */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar > *,
+  .main-content > *,
+  .top-div,
+  footer {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
