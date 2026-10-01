@@ -1,0 +1,18 @@
+---
+import { articleCardHtml } from '../scripts/article-card';
+
+interface Props {
+  article: {
+    title?: string;
+    date?: string;
+    author?: string;
+    summary?: string;
+    file: string;
+    tags?: string[];
+  };
+}
+
+const { article } = Astro.props;
+---
+
+<Fragment set:html={articleCardHtml(article)} />

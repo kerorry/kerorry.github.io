@@ -1,0 +1,14 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+// 首页 README 的排版，只在首页用到，跟着这个页面一起打包
+import '@/styles/markdown.css';
+// 直接复用仓库根目录的 README.md：它是唯一来源，
+// GitHub 仓库首页与站点首页渲染的是同一份内容。
+import Readme from '../../README.md';
+---
+
+<BaseLayout title="Kerorry的个人博客">
+  <article class="post glass-ground blog-post markdown-body">
+    <Readme />
+  </article>
+</BaseLayout>

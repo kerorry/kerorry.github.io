@@ -1,0 +1,39 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@/styles/post-1.css';
+// 用 ?url 交给 Vite 产出（带内容哈希），但输出保持经典 <script defer>，
+// 这样与 <head> 里同为 defer 的 d3 / topojson 严格按文档顺序执行。
+// 若改成 Astro 默认的打包模块（type="module"），它会进另一条执行队列，
+// 有可能早于 defer 的 d3 运行，导致 d3 is not defined。
+import postScript from '@/scripts/post-1.js?url';
+---
+
+<BaseLayout title="全球阳光图">
+  <script slot="head" is:inline defer src="https://d3js.org/d3.v7.min.js"></script>
+  <script slot="head" is:inline defer src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
+  <article class="post glass-ground blog-post">
+    <a id="back-article-link" class="back-article" href="/article/">← 返回文章列表</a>
+    <div id="sunlight-widget">
+      <div class="sw-card glass-ground">
+        <div class="sw-header">
+          <span class="sw-title">全球实时日照</span>
+          <div class="sw-info">
+            <span id="sw-time">--:--:--</span>
+            <span id="sw-subsolar">直射点 --°</span>
+          </div>
+        </div>
+        <canvas id="sw-canvas"></canvas>
+        <div class="sw-legend">
+          <span>夜间</span>
+          <span class="sw-gradient"></span>
+          <span>日照</span>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <Fragment slot="scripts">
+    <script is:inline defer src={postScript}></script>
+  </Fragment>
+</BaseLayout>

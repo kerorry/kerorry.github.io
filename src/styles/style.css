@@ -1,0 +1,459 @@
+/* style.css */
+:root {
+  /* 背景色 */
+  --color-bg-primary: #f0f2f5;
+  --color-bg-overlay: rgba(255, 255, 255, 0.92);
+  --color-bg-light-gray: #dddddd;
+  --color-bg-hover: rgba(0, 0, 0, 0.04);
+  --color-bg-hover-strong: rgba(0, 0, 0, 0.08);
+  --color-bg-active: rgba(0, 0, 0, 0.05);
+  --color-bg-subtle: rgba(0, 0, 0, 0.02);
+
+  /* 文字颜色 */
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #3a3a4e;
+  --color-text-muted: #6b6b7a;
+  --color-text-placeholder: #9a9aab;
+  --color-text-shadow: rgba(0, 0, 0, 0.04);
+
+  /* 边框 */
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --color-border-light: rgba(0, 0, 0, 0.10);
+  --color-border-medium: rgba(0, 0, 0, 0.18);
+  --color-border-strong: rgba(0, 0, 0, 0.28);
+
+  /* 阴影 */
+  --color-shadow-light: rgba(0, 0, 0, 0.04);
+  --color-shadow-medium: rgba(0, 0, 0, 0.08);
+  --color-shadow-glow: rgba(0, 0, 0, 0.04);
+
+  /* 壁纸 */
+  --color-bg-gradient-start: #e0e5ec;
+  --color-bg-gradient-end: #f5f7fa;
+
+  /* 页脚链接 */
+  --footer-color-link: #007bff;
+  --footer-color-link-hover: #0056b3;
+
+  /* 其他 */
+  --color-post-line: #e8ecf0;
+  --mc-green: #388e3c;
+  --mc-green-dark: #2e7d32;
+  --mc-green-bright: #4caf50;
+  --mc-charcoal: #333333;
+  --mc-stone: #bdbdbd;
+}
+
+@font-face {
+  font-family: "MiSans VF";
+  /* 绝对路径：CSS 现在交给 Astro 处理，可能被内联进 <style>；
+     内联时相对 URL 以「页面地址」为基准，在 /article/... 这类嵌套路由上会解析错。 */
+  src:
+    url("/fonts/MiSansVF.woff2") format("truetype-variations"),
+    url("/fonts/MiSansVF.woff2") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "MiSans VF", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  line-height: 1.6;
+  background-color: var(--color-bg-primary);
+  background-image: var(
+    --wallpaper-url,
+    linear-gradient(135deg, var(--color-bg-gradient-start), var(--color-bg-gradient-end))
+  );
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gradient-start),
+    var(--color-bg-gradient-end)
+  );
+  opacity: 1;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.wallpaper-loaded::before {
+  opacity: 0;
+}
+
+.no-scroll {
+  overflow: hidden !important;
+  height: 100% !important;
+}
+
+.container {
+  display: flex;
+  max-width: 65%;
+  margin: 0 auto;
+  gap: 30px;
+}
+
+.line {
+  width: 90%;
+  margin: 10px auto;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* 卡片 */
+.glass-ground {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-light-gray);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 3px;
+  box-shadow: 0 2px 12px var(--color-shadow-light), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+
+.glass-ground:hover {
+  box-shadow: 0 6px 24px var(--color-shadow-medium), 0 1px 4px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+.main-content {
+  flex: 1;
+}
+
+.blog-post {
+  padding: 30px;
+  margin-bottom: 30px;
+  color: var(--color-text-primary);
+}
+
+.post-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.post-title {
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-shadow: 0 1px 4px var(--color-text-shadow);
+}
+
+.post-author,
+.post-time {
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.post-meta span {
+  display: flex;
+  align-items: center;
+}
+
+.post-meta i {
+  margin-right: 5px;
+}
+
+.post-content {
+  margin-bottom: 20px;
+  color: var(--color-text-secondary);
+}
+
+.post-line {
+  left: 0;
+  width: 80%;
+  height: 2px;
+  margin: 3px;
+  background-color: var(--color-post-line);
+}
+
+.post-content p {
+  margin-bottom: 15px;
+}
+
+.read-more {
+  display: inline-block;
+  padding: 10px 20px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  text-decoration: none;
+  user-select: none;
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border-light);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.read-more:hover {
+  background: var(--color-bg-hover-strong);
+}
+
+footer {
+  margin-top: 20px;
+  padding: 30px;
+  text-align: center;
+  color: var(--color-text-primary);
+}
+
+/* 小屏幕设备（平板、大手机） */
+@media (max-width: 992px) {
+  .container {
+    max-width: 90%;
+    gap: 20px;
+  }
+
+  .info-profile img {
+    width: 50%;
+    height: 50%;
+  }
+}
+
+/* 手机屏幕（≤ 768px） */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    max-width: 100%;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .menu-links a {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .menu-links a i {
+    margin-right: 8px;
+    font-size: 16px;
+  }
+
+  .stats-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .stat-item {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .stat-number {
+    font-size: 16px;
+  }
+
+  .social-links a {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .main-content {
+    order: 1;
+  }
+
+  .blog-post {
+    padding: 18px 25px;
+    margin-bottom: 20px;
+  }
+
+  .post-title {
+    font-size: 22px;
+  }
+
+  .post-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .post-content {
+    font-size: 15px;
+  }
+
+  .read-more {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .search-input {
+    padding: 10px 16px;
+    font-size: 15px;
+  }
+
+  .tags-filter {
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .tag-filter-item {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+
+  .pagination {
+    gap: 4px;
+    margin-top: 15px;
+  }
+
+  .pagination-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    font-size: 13px;
+  }
+
+  .pagination-pages {
+    gap: 6px;
+    padding: 0 6px;
+  }
+
+  .pagination-ellipsis {
+    padding: 0 2px;
+  }
+
+  .top-div {
+    padding: 15px;
+  }
+
+  .top-div h2 {
+    font-size: 18px;
+  }
+
+  .info {
+    height: auto;
+    padding: 15px;
+  }
+
+  .info-profile {
+    flex-direction: row;
+    gap: 15px;
+    padding: 5px;
+  }
+
+  .info-profile img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+
+  .info-profile h2 {
+    font-size: 18px;
+    text-align: left;
+  }
+
+  .info-profile p {
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .back-article {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+
+  footer {
+    padding: 20px;
+    font-size: 14px;
+  }
+}
+
+/* 小手机（≤ 480px） */
+@media (max-width: 480px) {
+  body {
+    padding: 6px;
+  }
+
+  .blog-post {
+    padding: 14px 12px;
+  }
+
+  .post-title {
+    font-size: 20px;
+  }
+
+  .post-meta {
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .tag-filter-item {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .pagination-btn {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+
+  .stats-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-item {
+    padding: 6px 2px;
+    font-size: 11px;
+  }
+
+  .stat-number {
+    font-size: 14px;
+  }
+
+  .info-profile {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .info-profile img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .info-profile h2 {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .info-profile p {
+    font-size: 12px;
+    text-align: center;
+  }
+}

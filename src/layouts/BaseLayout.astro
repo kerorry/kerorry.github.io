@@ -1,0 +1,53 @@
+---
+// 全局样式走 Astro/Vite 的资源管线：打包、压缩、内容哈希，
+// 不再由 <head> 里一长串手写 <link> 维护。
+// 顺序即层叠顺序，style.css（重置 + 变量）必须最前。
+import '@/styles/style.css';
+import '@/styles/article.css';
+import '@/styles/info.css';
+import '@/styles/top.css';
+import '@/styles/sidebar.css';
+import '@/styles/footer.css';
+import '@/styles/entrance.css';
+
+import Top from '@/components/Top.astro';
+import Sidebar from '@/components/Sidebar.astro';
+import Footer from '@/components/Footer.astro';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Kerorry的个人博客' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <title>{title}</title>
+  <!-- 供页面注入必须走 <head> 的第三方脚本（如 d3、JSZip，它们是远程 URL，
+       进不了打包管线），Astro 没有内建的 head 提升机制，命名插槽是标准做法。 -->
+  <slot name="head" />
+</head>
+<body>
+  <div id="top-container"><Top /></div>
+  <main class="container">
+    <div id="sidebar-container"><Sidebar /></div>
+    <div class="main-content">
+      <slot />
+    </div>
+  </main>
+  <div id="footer-container"><Footer /></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <slot name="scripts" />
+  <script>
+    import { initSite } from '@/scripts/site';
+
+    initSite();
+  </script>
+</body>
+</html>

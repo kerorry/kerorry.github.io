@@ -1,6 +1,6 @@
 # Kerorry's Blog
 
-一个轻量级个人博客，采用 SPA（单页应用）式导航。
+一个轻量级个人博客，使用 [Astro](https://astro.build) 构建并部署到 GitHub Pages。
 
 ## 免责声明
 

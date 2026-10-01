@@ -1,0 +1,46 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ArticleCard from '@/components/ArticleCard.astro';
+import articles from '@/data/articles.json';
+import { PAGE_SIZE } from '@/scripts/article-list';
+
+const initialArticles = articles.slice(0, PAGE_SIZE);
+const allTags = [...new Set(articles.flatMap((article) => article.tags ?? []))];
+---
+
+<BaseLayout title="文章 - Kerorry的个人博客">
+  <div id="article-list-container">
+    <div class="search-section glass-ground" style="padding: 16px 20px;">
+      <input type="text" id="search-input" class="search-input" placeholder="搜索文章标题、摘要、作者..." />
+      <div class="tags-filter" id="tags-filter">
+        {allTags.map((tag) => <span class="tag-filter-item" data-tag={tag}>{tag}</span>)}
+      </div>
+    </div>
+
+    <div class="line"></div>
+
+    <div id="list-section" class="list-section">
+      <div class="article-list">
+        {initialArticles.map((article) => <ArticleCard article={article} />)}
+      </div>
+    </div>
+
+    <div class="line" id="pagination-line"></div>
+
+    <div class="pagination" id="pagination-container">
+      <button class="pagination-btn prev" id="prev-page" data-page="prev" disabled>
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="pagination-pages" id="pagination-pages"></div>
+      <button class="pagination-btn next" id="next-page" data-page="next">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    import { initArticleList } from '@/scripts/article-list';
+
+    initArticleList();
+  </script>
+</BaseLayout>
