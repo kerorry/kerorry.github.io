@@ -1,4 +1,5 @@
 ---
+import { ClientRouter, slide } from 'astro:transitions';
 // 全局样式走 Astro/Vite 的资源管线：打包、压缩、内容哈希，
 // 不再由 <head> 里一长串手写 <link> 维护。
 // 顺序即层叠顺序，style.css（重置 + 变量）必须最前。
@@ -19,6 +20,10 @@ interface Props {
 }
 
 const { title = 'Kerorry的个人博客' } = Astro.props;
+
+// 类 SPA 导航：拦截站内链接，fetch 新页面后原地换 DOM，不再整页重载。
+// duration 用字符串带单位 —— 不带单位在 CSS 里是非法值。
+const pageTransition = slide({ duration: '250ms' });
 ---
 
 <!DOCTYPE html>
@@ -29,13 +34,16 @@ const { title = 'Kerorry的个人博客' } = Astro.props;
   <link rel="icon" href="/favicon.ico" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <title>{title}</title>
+  <ClientRouter />
   <!-- 供页面注入必须走 <head> 的第三方脚本（如 d3、JSZip，它们是远程 URL，
        进不了打包管线），Astro 没有内建的 head 提升机制，命名插槽是标准做法。 -->
   <slot name="head" />
 </head>
 <body>
   <div id="top-container"><Top /></div>
-  <main class="container">
+  <!-- transition:animate 挂在 main 上：切页时内容区滑动进出，
+       顶栏与页脚保持不动（原站手写 SPA 换的也是内容区）。 -->
+  <main class="container" transition:animate={pageTransition}>
     <div id="sidebar-container"><Sidebar /></div>
     <div class="main-content">
       <slot />
@@ -47,7 +55,9 @@ const { title = 'Kerorry的个人博客' } = Astro.props;
   <script>
     import { initSite } from '@/scripts/site';
 
-    initSite();
+    // astro:page-load 是 Astro 提供的生命周期事件：首次加载与每次客户端切页后都会触发。
+    // 切页会整块换掉 DOM，所以初始化必须挂在这个事件上而不是只调一次。
+    document.addEventListener('astro:page-load', initSite);
   </script>
 </body>
 </html>

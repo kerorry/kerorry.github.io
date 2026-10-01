@@ -116,7 +116,11 @@ export function initArticleList() {
     renderPagination(totalPages);
   }
 
-  if (tagsFilter) {
+  // 三处监听器都带 dataset.bound 守卫，使 initArticleList 可以安全地重复调用：
+  // 切页会换掉 DOM，新节点需要重新绑定；而同一批节点绝不能被绑两次
+  // （否则点一次标签会被 toggle 两次，筛选结果正好反过来）。
+  if (tagsFilter && tagsFilter.dataset.bound !== '1') {
+    tagsFilter.dataset.bound = '1';
     tagsFilter.addEventListener('click', (event) => {
       const target = event.target.closest('.tag-filter-item');
       const tag = target?.dataset.tag;
@@ -130,14 +134,16 @@ export function initArticleList() {
     });
   }
 
-  if (searchInput) {
+  if (searchInput && searchInput.dataset.bound !== '1') {
+    searchInput.dataset.bound = '1';
     searchInput.addEventListener('input', (event) => {
       searchText = event.target.value.trim();
       render(true);
     });
   }
 
-  if (paginationContainer) {
+  if (paginationContainer && paginationContainer.dataset.bound !== '1') {
+    paginationContainer.dataset.bound = '1';
     paginationContainer.addEventListener('click', (event) => {
       const button = event.target.closest('.pagination-btn');
       const action = button?.dataset.page;

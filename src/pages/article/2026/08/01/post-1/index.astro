@@ -34,6 +34,8 @@ import postScript from '@/scripts/post-1.js?url';
   </article>
 
   <Fragment slot="scripts">
-    <script is:inline defer src={postScript}></script>
+    <!-- data-astro-rerun：客户端路由切页时强制重新执行，
+         否则 Astro 会按 src 去重、跳过「已经跑过」的脚本，组件不再初始化。 -->
+    <script is:inline defer data-astro-rerun src={postScript}></script>
   </Fragment>
 </BaseLayout>

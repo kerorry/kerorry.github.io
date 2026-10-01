@@ -2,7 +2,6 @@
 :root {
   /* 背景色 */
   --color-bg-primary: #f0f2f5;
-  --color-bg-overlay: rgba(255, 255, 255, 0.92);
   --color-bg-light-gray: #dddddd;
   --color-bg-hover: rgba(0, 0, 0, 0.04);
   --color-bg-hover-strong: rgba(0, 0, 0, 0.08);
@@ -25,7 +24,6 @@
   /* 阴影 */
   --color-shadow-light: rgba(0, 0, 0, 0.04);
   --color-shadow-medium: rgba(0, 0, 0, 0.08);
-  --color-shadow-glow: rgba(0, 0, 0, 0.04);
 
   /* 壁纸 */
   --color-bg-gradient-start: #e0e5ec;
@@ -40,7 +38,6 @@
   --mc-green: #388e3c;
   --mc-green-dark: #2e7d32;
   --mc-green-bright: #4caf50;
-  --mc-charcoal: #333333;
   --mc-stone: #bdbdbd;
 }
 

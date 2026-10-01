@@ -4,6 +4,22 @@ import ArticleCard from '@/components/ArticleCard.astro';
 import articles from '@/data/articles.json';
 import { PAGE_SIZE } from '@/scripts/article-list';
 
+// 构建期校验：articles.json 里的 file 必须对应真实存在的文章页。
+// 这个路径在两处重复表达（JSON 字段 + 页面所在目录），一旦不同步，
+// 列表里的「查看全文」就会指向 404 —— 这个错误已经真实发生过一次，
+// 所以用 import.meta.glob 在构建时把它变成硬失败，而不是上线后才发现。
+const pageFiles = new Set(
+  Object.keys(import.meta.glob('/src/pages/article/**/index.astro')).map((path) =>
+    path.replace(/^\/?src\/pages\//, '').replace(/index\.astro$/, '')
+  )
+);
+const brokenLinks = articles.filter((article) => !pageFiles.has(article.file));
+if (brokenLinks.length > 0) {
+  throw new Error(
+    `articles.json 的 file 找不到对应页面：${brokenLinks.map((a) => a.file).join('、')}`
+  );
+}
+
 const initialArticles = articles.slice(0, PAGE_SIZE);
 const allTags = [...new Set(articles.flatMap((article) => article.tags ?? []))];
 ---
@@ -41,6 +57,8 @@ const allTags = [...new Set(articles.flatMap((article) => article.tags ?? []))];
   <script>
     import { initArticleList } from '@/scripts/article-list';
 
-    initArticleList();
+    // 同上：切页会换掉 DOM，而打包后的模块只会执行一次，
+    // 必须在 astro:page-load 上重新初始化，否则搜索框与标签没有任何监听器。
+    document.addEventListener('astro:page-load', initArticleList);
   </script>
 </BaseLayout>

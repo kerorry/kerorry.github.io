@@ -4,15 +4,44 @@
  * 由 BaseLayout 通过 Astro 的 <script> 引入，走 Vite 打包（压缩 + 内容哈希），
  * 不再是 public/ 下手写的静态文件。
  *
- * 壁纸列表原本每次运行时 fetch /wallpaper.json，现在直接由 Vite 把
- * data/wallpapers.json 打进包里，少一次请求。
- * （/wallpaper.json 端点仍保留，作为站点原有的公开数据接口。）
+ * 壁纸列表直接由 Vite 从 data/wallpapers.json 打进包里，不做运行时请求。
  */
 
 import wallpapers from '@/data/wallpapers.json';
 
+// 壁纸状态是挂在 <body> 上的（class="wallpaper-loaded" + 内联变量 --wallpaper-url）。
+// 而 Astro 切页时会用新页面的 <body> 整个替换当前 body
+// （swap-functions.js: oldElement.replaceWith(newElement)），这两个状态都会丢，
+// body::before 那层不透明渐变随即重新盖住壁纸 —— 表现就是「切页后壁纸消失」。
+// 所以这里自己记住选择结果，并在每次 swap 前写进「即将换上来的」新 body。
+let wallpaperDecided = false;
+let wallpaperUrl = null;
+
+/** 把壁纸状态写到指定 body 上（当前 body，或 swap 前的新 body）。 */
+function applyWallpaperState(body) {
+  if (!wallpaperDecided) return;
+
+  body.classList.add('wallpaper-loaded');
+  if (wallpaperUrl) {
+    body.style.setProperty('--wallpaper-url', `url("${wallpaperUrl}")`);
+  }
+}
+
+// 必须在 swap 之前写入：视图转场是在 DOM 更新后拍「新状态」快照的，
+// 若等 astro:page-load 再补，快照里已经是渐变，会先闪一下。
+function carryWallpaperOver(event) {
+  applyWallpaperState(event.newDocument.body);
+}
+
 /** 随机挑一张壁纸，加载完成后淡出渐变占位层（body::before）。 */
 function loadWallpaper() {
+  // 已经选过：切页后 body 是新的，把状态贴回去即可，不重新随机
+  if (wallpaperDecided) {
+    applyWallpaperState(document.body);
+    return;
+  }
+  wallpaperDecided = true;
+
   if (!Array.isArray(wallpapers) || wallpapers.length === 0) return;
 
   const pick = wallpapers[Math.floor(Math.random() * wallpapers.length)];
@@ -20,14 +49,14 @@ function loadWallpaper() {
   const image = new Image();
 
   image.onload = () => {
-    document.body.style.setProperty('--wallpaper-url', `url("${imageUrl}")`);
-    document.body.classList.add('wallpaper-loaded');
+    wallpaperUrl = imageUrl;
+    applyWallpaperState(document.body);
     console.log('[壁纸] 已显示（' + performance.now().toFixed(0) + 'ms）');
   };
 
   image.onerror = () => {
     console.warn('[壁纸] 加载失败：' + imageUrl);
-    document.body.classList.add('wallpaper-loaded');
+    applyWallpaperState(document.body);
   };
 
   console.log('[壁纸] 加载：' + imageUrl);
@@ -76,6 +105,9 @@ async function fetchAndCacheGitHubData(cacheKey) {
   }
 }
 
+// 一次整页加载只发起一次网络刷新：否则客户端切页时会反复打 GitHub API。
+let githubRefreshStarted = false;
+
 /** 先用 localStorage 缓存立即渲染，过期后再后台刷新。 */
 async function initGitHubData() {
   const CACHE_KEY = 'github_stats';
@@ -97,6 +129,9 @@ async function initGitHubData() {
     }
   }
 
+  if (githubRefreshStarted) return;
+  githubRefreshStarted = true;
+
   await fetchAndCacheGitHubData(CACHE_KEY);
 }
 
@@ -106,6 +141,10 @@ function bindHamburger() {
   const overlay = document.getElementById('sidebarOverlay');
 
   if (!hamburger || !sidebar || !overlay) return;
+  // 客户端切页会整块换掉 DOM，新节点必须重新绑定；
+  // 这个标记只防「同一批节点被重复绑定」——否则一次点击会 toggle 两次、菜单看起来打不开。
+  if (hamburger.dataset.bound === '1') return;
+  hamburger.dataset.bound = '1';
 
   function toggleSidebar() {
     sidebar.classList.toggle('open');
@@ -137,4 +176,8 @@ export function initSite() {
   loadWallpaper();
   initGitHubData();
   bindHamburger();
+
+  // 同一个函数引用重复 addEventListener 会被浏览器忽略，所以每次 page-load
+  // 都调用也不会重复注册。
+  document.addEventListener('astro:before-swap', carryWallpaperOver);
 }

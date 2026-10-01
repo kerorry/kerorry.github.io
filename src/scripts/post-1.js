@@ -165,11 +165,43 @@
     }
 
     // ---------- 启动 ----------
-    loadMapData().then(() => {
+    // 客户端路由切页时本脚本会重新执行（script 上标了 data-astro-rerun），
+    // 先清掉上一次的定时器，避免反复进出本页时定时器不断累加。
+    if (window.__sunlightTimer) {
+        clearInterval(window.__sunlightTimer);
+        window.__sunlightTimer = null;
+    }
+
+    const depsReady = () => typeof d3 !== 'undefined' && typeof topojson !== 'undefined';
+
+    function start() {
+        loadMapData().then(() => {
+            update();
+            window.__sunlightTimer = setInterval(update, 60000);
+        }).catch(() => {
+            update();
+            window.__sunlightTimer = setInterval(update, 60000);
+        });
+    }
+
+    // 仅画网格线 + 直射点，不依赖 d3 的降级路径。
+    // （mapData 为 null 时 drawOutline 会直接 return，所以这里是安全的）
+    function startWithoutOutline() {
+        console.warn('[日照图] d3 / topojson 不可用，跳过国家轮廓');
         update();
-        setInterval(update, 60000);
-    }).catch(() => {
-        update();
-        setInterval(update, 60000);
-    });
+        window.__sunlightTimer = setInterval(update, 60000);
+    }
+
+    // d3 / topojson 是 <head> 里的远程脚本：
+    //  · 整页加载时它们是 defer，按文档顺序先于本脚本执行，没等到就说明加载失败；
+    //  · 客户端切页时动态插入的脚本没有 defer 语义、加载顺序不保证，需要等它。
+    // 用 readyState 区分这两种情况，避免整页加载时白白空等。
+    (function waitForDeps(retries) {
+        if (depsReady()) return start();
+
+        const mayStillBeLoading = document.readyState === 'complete';
+        if (!mayStillBeLoading || retries >= 50) return startWithoutOutline();
+
+        setTimeout(() => waitForDeps(retries + 1), 100);
+    })(0);
 })();

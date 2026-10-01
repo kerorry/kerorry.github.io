@@ -97,6 +97,7 @@ import postScript from '@/scripts/post-2.js?url';
   </article>
 
   <Fragment slot="scripts">
-    <script is:inline defer src={postScript}></script>
+    <!-- data-astro-rerun：同上，保证客户端切页时本页脚本会重新初始化 -->
+    <script is:inline defer data-astro-rerun src={postScript}></script>
   </Fragment>
 </BaseLayout>
