@@ -106,8 +106,7 @@ body.wallpaper-loaded::before {
 
 .container {
   display: flex;
-  max-width: 65%;
-  margin: 0 auto;
+  margin: 0 8%;
   gap: 30px;
 }
 
