@@ -1,0 +1,18 @@
+# 操作系统 / 编辑器产生的垃圾
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/
+
+# 日志 / 临时文件
+*.log
+*.tmp
+_*.html
+
+# 依赖与构建产物（本站是纯静态页，目前用不到，先占位防止误提交）
+node_modules/
+dist/
+.cache/
