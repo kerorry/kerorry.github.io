@@ -420,7 +420,7 @@ const PageManager = {
     if (!container) return;
 
     try {
-      const res = await fetch(ROOT_PATH + 'top.html');
+      const res = await fetch(ROOT_PATH + 'partials/top.html');
       if (!res.ok) throw new Error('Top 加载失败');
       const html = await res.text();
       container.innerHTML = html;
@@ -436,7 +436,7 @@ const PageManager = {
     if (!container) return;
 
     try {
-      const res = await fetch(ROOT_PATH + 'sidebar.html');
+      const res = await fetch(ROOT_PATH + 'partials/sidebar.html');
       if (!res.ok) throw new Error('Sidebar 加载失败');
       const html = await res.text();
       container.innerHTML = html;
@@ -466,7 +466,7 @@ const PageManager = {
     if (!container) return;
 
     try {
-      const res = await fetch(ROOT_PATH + 'footer.html');
+      const res = await fetch(ROOT_PATH + 'partials/footer.html');
       if (!res.ok) throw new Error('Footer 加载失败');
       const html = await res.text();
       container.innerHTML = html;
