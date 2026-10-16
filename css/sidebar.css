@@ -1,8 +1,7 @@
 /* sidebar.css */
 .sidebar {
-  width: 20vw;
-  min-width: 215px;
-  max-width: 275px;
+  left: 0;
+  width: 270px;
   padding: 20px;
 }
 
