@@ -74,33 +74,8 @@ body {
   margin: 0;
   padding: 20px;
   line-height: 1.6;
-  background-color: var(--color-bg-primary);
-  background-image: var(
-    --wallpaper-url,
-    linear-gradient(135deg, var(--color-bg-gradient-start), var(--color-bg-gradient-end))
-  );
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-gradient-start),
-    var(--color-bg-gradient-end)
-  );
-  opacity: 1;
-  transition: opacity 0.6s ease;
-  pointer-events: none;
-  z-index: -1;
-}
-
-body.wallpaper-loaded::before {
-  opacity: 0;
+  /* 背景交给 #bg 画布（css/wallpaper.css），body 保持透明 */
+  background: transparent;
 }
 
 .no-scroll {
@@ -380,10 +355,6 @@ footer {
   .info-profile p {
     font-size: 13px;
     text-align: left;
-  }
-
-  .loading-wrapper {
-    backdrop-filter: blur(2px);
   }
 
   .back-article {

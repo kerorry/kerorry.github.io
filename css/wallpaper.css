@@ -1,0 +1,43 @@
+/* ============================================================
+   壁纸：横线 + 原子
+   - 配色跟随 css/style.css 的页面调色板，避开纯白 / 纯黑，
+     与页面的冷灰底 + 靛蓝文字同一色系
+   - 明暗由 <html data-theme="light|dark"> 决定（js/theme.js 写入），
+     暗色下 --color-bg-primary 变深，--bg 自动跟着变
+   - 画布内容由 js/bg.js 绘制（#bg 是一个空 canvas）
+   ============================================================ */
+
+:root{
+  /* 背景底色 = 页面主背景 --color-bg-primary（浅色 #f0f2f5 / 暗色 #14141d） */
+  --bg: var(--color-bg-primary, #f0f2f5);
+  /* 线条与原子的 RGB 分量：浅色用页面主文字 #1a1a2e */
+  --ink: 26, 26, 46;
+  /* 横线基础透明度，越小越不抢眼 */
+  --line-opacity: 0.07;
+}
+
+html[data-theme='dark']{
+  /* 暗色下线条与原子改成冷白，不用纯白，避免暗底上过亮 */
+  --ink: 226, 228, 240;
+  --line-opacity: 0.08;
+}
+
+html{
+  background: var(--bg);
+}
+
+/* 背景画布：铺满视口，永远在内容下面，不接收鼠标事件
+   z-index:-1 让它落在根层叠上下文的最底层（比常规内容低，又不会被 html 底色挡住）。
+   注意别改成 z-index:0 + 给内容加 z-index —— 那会让 main.container 形成层叠上下文，
+   把移动端侧边栏的 z-index:1000 关在里面，被 .sidebar-overlay（z-index:999）压住并模糊。 */
+#bg{
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 移动端侧边抽屉遮罩本身就是 fixed + z-index:999，
+   抽屉是 z-index:1000，两者都在根层叠上下文里正常叠放，无需额外处理 */

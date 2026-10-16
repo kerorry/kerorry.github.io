@@ -13,14 +13,19 @@
     <link rel="stylesheet" href="/css/top.css">
     <link rel="stylesheet" href="/css/sidebar.css">
     <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/wallpaper.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- 文章样式 -->
     <link rel="stylesheet" href="style.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="/js/bg.js" defer></script>
 </head>
 <body>
+  <!-- 壁纸画布：横线 + 原子（由 js/bg.js 绘制） -->
+  <canvas id="bg" aria-hidden="true"></canvas>
+
   <!-- 个人信息 -->
   <div id="top-container"></div>
 

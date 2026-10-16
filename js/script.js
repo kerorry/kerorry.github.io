@@ -40,6 +40,7 @@ const SPA = {
 
   baseStyles: [
     'css/style.css',
+    'css/wallpaper.css',
     'css/skeleton.css',
     'css/article.css',
     'css/info.css',
@@ -105,7 +106,7 @@ const SPA = {
       const src = old.getAttribute('src');
       if (!src) return;
 
-      if (/\/js\/(load-css|script)\.js(\?|$)/.test(src)) return;
+      if (/\/js\/(script|bg|theme)\.js(\?|$)/.test(src)) return;
       if (old.closest('.main-content')) return;
 
       const resolved = new URL(src, baseUrl).href;
@@ -233,13 +234,8 @@ const SPA = {
       // 换掉主内容
       currentMain.innerHTML = newMain.innerHTML;
 
-      // 同步类名，但保留壁纸加载状态
-      const keepWallpaperLoaded =
-        document.body.classList.contains('wallpaper-loaded');
+      // 同步类名（背景画布是固定元素，不随主内容切换）
       document.body.className = doc.body.className;
-      if (keepWallpaperLoaded) {
-        document.body.classList.add('wallpaper-loaded');
-      }
 
       if (doc.title) document.title = doc.title;
 
@@ -323,8 +319,6 @@ const PageManager = {
   TAGS_CACHE_KEY: 'all_tags',
 
   async init() {
-    await this.loadWallpaper();
-
     await Promise.all([
       this.loadTop(),
       this.loadSidebar(),
@@ -790,39 +784,6 @@ const PageManager = {
         return `<button class="pagination-btn ${active}" data-page="${p}">${p}</button>`;
       })
       .join('');
-  },
-
-  async loadWallpaper() {
-    try {
-      const res = await fetch(ROOT_PATH + 'wallpaper.json');
-      if (!res.ok) throw new Error('[壁纸] 加载壁纸列表失败');
-
-      const wallpapers = await res.json();
-      if (wallpapers.length === 0) return;
-
-      const pick = wallpapers[Math.floor(Math.random() * wallpapers.length)];
-      const imgUrl = ROOT_PATH + pick.file;
-
-      console.log('[壁纸] 加载：' + imgUrl);
-
-      const img = new Image();
-
-      img.onload = () => {
-        document.body.style.setProperty('--wallpaper-url', `url("${imgUrl}")`);
-        document.body.classList.add('wallpaper-loaded');
-        console.log('[壁纸] 已显示（' + performance.now().toFixed(0) + 'ms）');
-      };
-
-      img.onerror = () => {
-        console.warn('[壁纸] 加载失败：' + imgUrl);
-        document.body.classList.add('wallpaper-loaded');
-      };
-
-      img.src = imgUrl;
-    } catch (error) {
-      console.warn('[壁纸] 加载失败，使用默认渐变', error);
-      document.body.classList.add('wallpaper-loaded');
-    }
   },
 
   generatePages(current, total) {
