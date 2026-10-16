@@ -6,7 +6,6 @@
 
 /* 整个卡片容器，复用博客 .glass-ground 样式 */
 #sunlight-widget .sw-card {
-    background: var(--color-bg-white);
     border-radius: 3px;                    /* 与 .glass-ground 一致 */
     border: 1px solid var(--color-border-subtle);
     box-shadow: 0 2px 12px var(--color-shadow-light), 0 1px 3px rgba(0,0,0,0.02);

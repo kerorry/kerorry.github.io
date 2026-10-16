@@ -418,6 +418,9 @@ const PageManager = {
       if (!res.ok) throw new Error('Top 加载失败');
       const html = await res.text();
       container.innerHTML = html;
+
+      // 顶栏里带主题开关，注入后同步它的状态
+      if (window.Theme && window.Theme.sync) window.Theme.sync();
     } catch (error) {
       console.error('加载 top 出错:', error);
       container.innerHTML =
@@ -658,7 +661,7 @@ const PageManager = {
     } catch (error) {
       console.error('[文章] 加载文章列表失败:', error);
       listSection.innerHTML =
-        '<p style="color:white; padding:20px;">加载失败，请稍后重试。</p>';
+        '<p style="color:var(--color-text-muted); padding:20px;">加载失败，请稍后重试。</p>';
     }
   },
 
@@ -715,7 +718,7 @@ const PageManager = {
 
     if (articles.length === 0) {
       this.listContainer.innerHTML = `
-        <p style="color: rgba(255,255,255,0.7); padding: 20px; text-align: center;">
+        <p style="color: var(--color-text-muted); padding: 20px; text-align: center;">
           没有找到匹配的文章
         </p>
       `;

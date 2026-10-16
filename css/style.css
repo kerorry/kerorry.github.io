@@ -1,5 +1,8 @@
 /* style.css */
 :root {
+  /* 声明本站为「浅色优先」，滚动条 / 表单控件跟随主题 */
+  color-scheme: light;
+
   /* 背景色 */
   --color-bg-primary: #f0f2f5;
   --color-bg-overlay: rgba(255, 255, 255, 0.92);
@@ -9,6 +12,8 @@
   --color-bg-active: rgba(0, 0, 0, 0.05);
   --color-bg-subtle: rgba(0, 0, 0, 0.02);
   --color-bg-skeleton: rgba(0, 0, 0, 0.06);
+  /* 浮层底色（移动端抽屉等）：浅色下与页面同色，靠遮罩对比区分 */
+  --color-bg-elevated: #f0f2f5;
 
   /* 文字颜色 */
   --color-text-primary: #1a1a2e;
@@ -28,23 +33,66 @@
   --color-shadow-medium: rgba(0, 0, 0, 0.08);
   --color-shadow-glow: rgba(0, 0, 0, 0.04);
 
-  /* 壁纸 */
-  --color-bg-gradient-start: #e0e5ec;
-  --color-bg-gradient-end: #f5f7fa;
-
   /* 页脚链接 */
   --footer-color-link: #007bff;
   --footer-color-link-hover: #0056b3;
 
   /* 其他 */
-  --color-loading-dot: #b0b0c0;
   --color-skeleton-shimmer: rgba(0, 0, 0, 0.05);
   --color-post-line: #e8ecf0;
   --mc-green: #388e3c;
   --mc-green-dark: #2e7d32;
   --mc-green-bright: #4caf50;
-  --mc-charcoal: #333333;
   --mc-stone: #bdbdbd;
+}
+
+/* ============================================================
+   暗色主题
+   由 js/theme.js 在 <html> 上写 data-theme="dark" 触发：
+   首次访问跟随系统，之后按开关的选择记在 localStorage。
+   没有 JS 时不写属性 —— 页面保持浅色，不会出现「半套暗色」。
+   ============================================================ */
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* 背景色 */
+  --color-bg-primary: #14141d;
+  --color-bg-overlay: rgba(20, 20, 29, 0.92);
+  --color-bg-light-gray: #1e1e2a;
+  --color-bg-hover: rgba(255, 255, 255, 0.06);
+  --color-bg-hover-strong: rgba(255, 255, 255, 0.10);
+  --color-bg-active: rgba(255, 255, 255, 0.08);
+  --color-bg-subtle: rgba(255, 255, 255, 0.03);
+  --color-bg-skeleton: rgba(255, 255, 255, 0.08);
+  /* 暗色下抽屉要比「被遮罩压暗的页面」更亮，否则看不出边界 */
+  --color-bg-elevated: #23232f;
+
+  /* 文字颜色 */
+  --color-text-primary: #e6e8f2;
+  --color-text-secondary: #c2c5d6;
+  --color-text-muted: #9a9daf;
+  --color-text-placeholder: #7f8296;
+  --color-text-shadow: rgba(0, 0, 0, 0.35);
+
+  /* 边框 */
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-light: rgba(255, 255, 255, 0.12);
+  --color-border-medium: rgba(255, 255, 255, 0.20);
+  --color-border-strong: rgba(255, 255, 255, 0.30);
+
+  /* 阴影 */
+  --color-shadow-light: rgba(0, 0, 0, 0.30);
+  --color-shadow-medium: rgba(0, 0, 0, 0.45);
+  --color-shadow-glow: rgba(0, 0, 0, 0.35);
+
+  /* 页脚链接 */
+  --footer-color-link: #6ea8fe;
+  --footer-color-link-hover: #9cc4ff;
+
+  /* 其他 */
+  --color-skeleton-shimmer: rgba(255, 255, 255, 0.06);
+  --color-post-line: #2b2b3a;
+  --mc-stone: #4a4a57;
 }
 
 @font-face {

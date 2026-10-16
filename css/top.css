@@ -51,6 +51,90 @@
   background: var(--color-bg-hover-strong);
 }
 
+/* 白天 / 黑夜开关 */
+.theme-switch {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-switch:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 3px;
+}
+
+.theme-switch-track {
+  position: relative;
+  display: block;
+  width: 58px;
+  height: 28px;
+  background: var(--color-bg-hover-strong);
+  border: 1px solid var(--color-border-light);
+  border-radius: 999px;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.theme-switch:hover .theme-switch-track {
+  background: var(--color-bg-active);
+  border-color: var(--color-border-medium);
+}
+
+.theme-switch-icon {
+  position: absolute;
+  top: 50%;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  opacity: 0.55;
+  transform: translateY(-50%);
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+.theme-switch-sun {
+  left: 7px;
+}
+
+.theme-switch-moon {
+  right: 7px;
+}
+
+/* 滑块 = 页面主文字色（浅色下是深靛蓝，暗色下是冷白），自动跟着主题反转 */
+.theme-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: var(--color-text-primary);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px var(--color-shadow-light);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 滑块移动：浅色时压住太阳，暗色时压住月亮 */
+html[data-theme='dark'] .theme-switch-knob {
+  transform: translateX(30px);
+}
+
+/* 被滑块盖住的那个图标反相，露出底色 */
+html:not([data-theme='dark']) .theme-switch-sun,
+html[data-theme='dark'] .theme-switch-moon {
+  color: var(--color-bg-light-gray);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch-track,
+  .theme-switch-icon,
+  .theme-switch-knob {
+    transition: none;
+  }
+}
+
 .sidebar {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -58,6 +142,11 @@
 @media (max-width: 768px) {
   .hamburger-btn {
     display: block;
+  }
+
+  /* 给绝对定位的汉堡按钮让位 */
+  .theme-switch {
+    margin-right: 46px;
   }
 
   .sidebar {
@@ -72,7 +161,7 @@
     margin: 5vh 0;
     padding: 20px;
     overflow-y: auto;
-    background: var(--color-bg-primary);
+    background: var(--color-bg-elevated);
     border-right: 1px solid var(--color-border-subtle);
     box-shadow: 2px 0 12px var(--color-shadow-medium);
     scrollbar-width: none;
