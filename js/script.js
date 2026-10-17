@@ -400,6 +400,9 @@ const PageManager = {
     const baseName = path.replace(/\.html$/, '');
     if (baseName === 'article') {
       await this.loadArticleList();
+    } else if (document.getElementById('announcement-container')) {
+      // 首页公告：SPA 切回首页时主内容是新 DOM，需要重新加载
+      await this.loadAnnouncement();
     }
   },
 
@@ -471,6 +474,22 @@ const PageManager = {
       console.error('加载 footer 出错:', error);
       container.innerHTML =
         '<footer class="glass-ground"><p>页脚加载失败</p></footer>';
+    }
+  },
+
+  async loadAnnouncement() {
+    const container = document.getElementById('announcement-container');
+    if (!container) return;
+
+    try {
+      const res = await fetch(ROOT_PATH + 'partials/announcement.html');
+      if (!res.ok) throw new Error('Announcement 加载失败');
+      const html = await res.text();
+      container.innerHTML = html;
+    } catch (error) {
+      console.error('加载 announcement 出错:', error);
+      container.innerHTML =
+        '<article class="post glass-ground blog-post"><p>公告加载失败，请刷新页面重试。</p></article>';
     }
   },
 
