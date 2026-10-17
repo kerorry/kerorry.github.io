@@ -4,7 +4,7 @@
   color-scheme: light;
 
   /* 背景色 */
-  --color-bg-primary: #f0f2f5;
+  --color-bg-primary: #e6e9ee;
   --color-bg-overlay: rgba(255, 255, 255, 0.92);
   --color-bg-light-gray: #dddddd;
   --color-bg-hover: rgba(0, 0, 0, 0.04);
@@ -13,7 +13,7 @@
   --color-bg-subtle: rgba(0, 0, 0, 0.02);
   --color-bg-skeleton: rgba(0, 0, 0, 0.06);
   /* 浮层底色（移动端抽屉等）：浅色下与页面同色，靠遮罩对比区分 */
-  --color-bg-elevated: #f0f2f5;
+  --color-bg-elevated: #e6e9ee;
 
   /* 文字颜色 */
   --color-text-primary: #1a1a2e;
