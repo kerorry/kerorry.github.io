@@ -2,16 +2,19 @@
 
 一个轻量级个人博客，采用 SPA（单页应用）式导航。
 
-## 文章目录约定
+## 目录约定
+
+文章列表页是 `article/index.html`，访问地址为 `/article/`；
 
 每篇文章放在 `article/post-N/` 下（`N` 从 1 开始，按发布日期从早到晚递增），
 目录内固定包含 `index.html`（文章页）、`style.css`（文章样式）、`script.js`（文章脚本）：
 
 ```
 article/
-├── post-1/   # 全球阳光图（2026-08-01）
-├── post-2/   # Geometry 合并工具（2026-08-20）
-└── post-3/   # 下一篇新文章
+├── index.html            # 文章列表页（/article/）
+├── post-1/               # 全球阳光图（2026-08-01）
+├── post-2/               # Geometry 合并工具（2026-08-20）
+└── post-3/               # 下一篇新文章
 ```
 
 新增文章步骤：
@@ -19,7 +22,8 @@ article/
 1. 复制上一条 `article/post-N/` 到 `article/post-（N+1）/`，改里面的页面与脚本；
 2. 在 `articles.json` 里追加一条记录，`file` 填 `article/post-（N+1）/`。
 
-文章页里公共资源一律用根路径（`/css/…`、`/js/…`），自身资源用相对路径（`style.css`、`script.js`）。
+文章页里公共资源一律用根路径（`/css/…`、`/js/…`），自身资源用相对路径（`style.css`、`script.js`）；
+页面间跳转也用根路径（`/`、`/article/`），否则在子目录页面里相对路径会解析错位置。
 
 ## 免责声明
 

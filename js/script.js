@@ -12,6 +12,14 @@ function getRootPath() {
   return parts.length === 0 ? './' : '../'.repeat(parts.length);
 }
 
+/* 当前页面标识：兼容 /article/、/article/index.html 这类目录形式 */
+function getPageKey() {
+  let path = window.location.pathname;
+  path = path.replace(/\/index\.html$/, '').replace(/\/+$/, '');
+  const last = path.split('/').pop();
+  return last || 'index';
+}
+
 const ROOT_PATH = getRootPath();
 console.log('[信息] 网站根路径:', ROOT_PATH);
 
@@ -345,8 +353,7 @@ const PageManager = {
 
     this.bindBackButton();
 
-    const path = window.location.pathname.split('/').pop() || 'index.html';
-    const baseName = path.replace(/\.html$/, '');
+    const baseName = getPageKey();
 
     // 文章列表页：同步插入骨架屏，让它跟着主内容一起滑入
     if (baseName === 'article') {
@@ -396,8 +403,7 @@ const PageManager = {
     // 首次加载时 prepareContent 还没跑过，这里兜底一次（幂等）
     this.prepareContent();
 
-    const path = window.location.pathname.split('/').pop() || 'index.html';
-    const baseName = path.replace(/\.html$/, '');
+    const baseName = getPageKey();
     if (baseName === 'article') {
       await this.loadArticleList();
     } else if (document.getElementById('announcement-container')) {
@@ -748,7 +754,7 @@ const PageManager = {
       <div class="article-list">
         ${articles
           .map((article) => {
-            const link = `${article.file}`;
+            const link = ROOT_PATH + article.file;
             return `
               <article class="post glass-ground blog-post">
                 <h2 class="post-title">${article.title || '无标题'}</h2>
@@ -859,11 +865,8 @@ const PageManager = {
     if (!menuContainer) return;
 
     menuContainer.addEventListener('click', (event) => {
-      const li = event.target.closest('li');
-      if (!li) return;
-
-      const target = li.dataset.target;
-      if (!target) return;
+      const link = event.target.closest('a');
+      if (!link || !link.href) return;
 
       if (
         event.metaKey ||
@@ -874,7 +877,7 @@ const PageManager = {
         return;
 
       event.preventDefault();
-      window.navigateTo(ROOT_PATH + target);
+      window.navigateTo(link.href);
     });
   },
 
@@ -882,7 +885,7 @@ const PageManager = {
     const backLink = document.getElementById('back-article-link');
     if (!backLink) return;
 
-    const target = ROOT_PATH + 'article.html';
+    const target = ROOT_PATH + 'article/';
     backLink.href = target;
 
     if (backLink.dataset.bound === '1') return;
